@@ -9,12 +9,7 @@
     },
     "routes": [
         {
-            "src": "/build/assets/(.*)",
-            "dest": "/public/build/assets/$1"
-        },
-        {
-            "src": "/images/(.*)",
-            "dest": "/public/images/"
+            "handle": "filesystem"
         },
         {
             "src": "/(.*)",
