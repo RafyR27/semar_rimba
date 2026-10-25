@@ -1,19 +1,39 @@
 {
     "version": 2,
-    "framework": null,
-    "functions": {
-        "api/index.php": {
-            "runtime": "vercel-php@0.9.0"
+    "builds": [
+        {
+            "src": "api/index.php",
+            "use": "vercel-php@0.9.0"
+        },
+        {
+            "src": "public/**",
+            "use": "@vercel/static"
         }
-    },
+    ],
     "routes": [
         {
-            "src": "/build/assets/(.*)",
-            "dest": "/public/build/assets/$1"
+            "src": "/build/(.*)",
+            "dest": "/public/build/$1"
         },
         {
             "src": "/images/(.*)",
-            "dest": "/public/images/"
+            "dest": "/public/images/$1"
+        },
+        {
+            "src": "/favicon\\.ico",
+            "dest": "/public/favicon.ico"
+        },
+        {
+            "src": "/favicon\\.svg",
+            "dest": "/public/favicon.svg"
+        },
+        {
+            "src": "/apple-touch-icon\\.png",
+            "dest": "/public/apple-touch-icon.png"
+        },
+        {
+            "src": "/robots\\.txt",
+            "dest": "/public/robots.txt"
         },
         {
             "src": "/(.*)",
@@ -23,7 +43,7 @@
     "env": {
         "APP_ENV": "production",
         "APP_DEBUG": "true",
-        "APP_URL": "https://semar-rimba.vercel.app/",
+        "APP_URL": "https://semar-rimba.vercel.app",
         "APP_CONFIG_CACHE": "/tmp/config.php",
         "APP_EVENTS_CACHE": "/tmp/events.php",
         "APP_PACKAGES_CACHE": "/tmp/packages.php",
@@ -33,6 +53,5 @@
         "CACHE_DRIVER": "array",
         "LOG_CHANNEL": "stderr",
         "SESSION_DRIVER": "cookie"
-    },
-    "outputDirectory": "public"
+    }
 }
