@@ -41,6 +41,3 @@ yarn-error.log
 /opencode.jsonc
 /.impeccable
 PRODUCT.md
-
-.vercel
-.env*
