@@ -22,10 +22,12 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/.agent
 /.agents
 /.amp
 /.claude
 /.cursor
+/.codex
 /.factory
 /.grok
 /.junie
@@ -37,3 +39,5 @@ yarn-error.log
 /boost.json
 /opencode.json
 /opencode.jsonc
+/.impeccable
+PRODUCT.md

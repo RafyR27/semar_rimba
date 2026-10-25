@@ -1,69 +1,108 @@
-{{-- ========================================================
-     HERO SECTION (Matching Screenshot Section 2)
-     ======================================================== --}}
-<section id="hero" class="relative overflow-hidden field-grid-bg text-white pt-10 pb-12 lg:pt-12 lg:pb-14 border-b border-stone-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {{-- Top Badge Row --}}
-        <div class="mb-5">
-            <div class="inline-flex flex-wrap items-center gap-2 px-3 py-1 rounded-full bg-stone-900/80 border border-gold/40 text-xs font-bold tracking-wider uppercase">
-                <span class="px-2 py-0.5 rounded-full bg-gold text-stone-950 font-black text-[10px]">
-                    KORP RIMBA &amp; STRUKTUR ORGANISASI
-                </span>
-                <span class="text-stone-300 text-[10px] sm:text-[11px] font-semibold pr-1">
-                    REKOGNISI RESMI SK DIREKTUR POLTEK STIA LAN
-                </span>
+<section id="hero"
+    class="relative overflow-hidden text-white flex flex-col justify-end bg-[#080A08] min-h-[calc(100dvh-80px)] px-6 lg:px-35">
+    {{-- Atmospheric Expedition Nature Backdrop Slider (Swiper) --}}
+    <div class="absolute inset-0 pointer-events-none overflow-hidden select-none z-0">
+        <div class="swiper hero-swiper size-full">
+            <div class="swiper-wrapper size-full">
+                <div class="swiper-slide size-full">
+                    <img src="{{ asset('images/gambar2.webp') }}"
+                        alt="SEMAR RIMBA - Ekspedisi Rimba"
+                        class="size-full object-cover object-center opacity-35" loading="eager" />
+                </div>
+                <div class="swiper-slide size-full">
+                    <img src="{{ asset('images/gambar1.webp') }}"
+                        alt="SEMAR RIMBA - Penjelajahan Alam"
+                        class="size-full object-cover object-center opacity-35" loading="lazy" />
+                </div>
             </div>
         </div>
+        <div class="absolute inset-0 bg-linear-to-t from-[#080A08] via-[#080A08]/40 to-transparent"></div>
+    </div>
 
-        {{-- Main Headline --}}
-        <div class="max-w-4xl">
-            <h1 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white leading-[1.08] uppercase">
-                DEWAN PENGURUS &amp; BADAN<br />
-                PENGURUS HARIAN
-            </h1>
-        </div>
+    {{-- Main Headline & CTA (Vertically Centered) --}}
+    <div class="relative z-10 w-full flex flex-col justify-center">
+        <div class="flex flex-col items-start">
+            <div class="space-y-4 sm:space-y-5">
+                <div>
+                    <h1
+                        class="text-5xl lg:text-6xl font-black tracking-wider text-white leading-[1.12] text-balance font-yellow drop-shadow-sm">
+                        SEMAR RIMBA
+                    </h1>
+                    <p class="block text-sm lg:text-lg font-bold text-gold tracking-wide mt-2 leading-snug drop-shadow-sm">
+                        UKM Pecinta Alam Politeknik STIA LAN Bandung
+                    </p>
+                </div>
 
-        {{-- Description Copy & Masa Bakti Row --}}
-        <div class="mt-4 flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <p class="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed max-w-2xl">
-                Mengemban amanah estafet organisasi, penegakan disiplin korsa, pengelolaan 4 matra operasional lapangan, riset konservasi alam, serta aksi tanggap darurat SAR bina watak prajurit:
-                <span class="text-gold font-bold">Tabah, Terampil, Tangguh, Lestari.</span>
-            </p>
-            <div class="shrink-0 text-xs font-bold tracking-wider text-gold uppercase flex items-center gap-1.5 pb-1">
-                <span>&bull;</span>
-                <span>MASA BAKTI: 2024 / 2025</span>
-            </div>
-        </div>
+                <p class="text-sm sm:text-base text-stone-200 leading-relaxed text-pretty max-w-2xl drop-shadow-xs">
+                    Berdiri sejak tahun 1998 di lingkungan Politeknik STIA LAN Bandung, SEMAR RIMBA merupakan wadah
+                    pembinaan karakter, penjelajahan alam bebas nusantara, serta pengabdian, dan kemanusiaan.
+                </p>
 
-        {{-- 4-Column Statistics Strip --}}
-        <div class="mt-10 pt-6 border-t border-stone-800/80 grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
-            {{-- Stat 1 --}}
-            <div class="space-y-1">
-                <p class="text-2xl sm:text-3xl font-black text-white tracking-tight">18</p>
-                <p class="text-[11px] font-bold text-white uppercase tracking-wider">Fungsionaris Aktif</p>
-                <p class="text-[10px] text-stone-400">BPH &amp; Komandan Divisi Lapangan</p>
-            </div>
-
-            {{-- Stat 2 --}}
-            <div class="space-y-1">
-                <p class="text-2xl sm:text-3xl font-black text-white tracking-tight">1 Tahun</p>
-                <p class="text-[11px] font-bold text-white uppercase tracking-wider">Masa Pengabdian</p>
-                <p class="text-[10px] text-stone-400">Regenerasi Musyawarah Anggota</p>
+                {{-- Primary and Secondary CTAs --}}
+                <div class="pt-2 flex flex-wrap items-center gap-4">
+                    <a href="#tentang"
+                        class="px-6 py-2.5 rounded-full bg-gold hover:bg-gold-hover text-stone-950 font-semibold text-sm tracking-wide transition shadow-lg inline-flex items-center gap-2 group focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A08]">
+                        <span>Mengenal Profil Kami</span>
+                        <svg class="size-4 group-hover:translate-x-0.5 transition" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </a>
+                </div>
             </div>
 
-            {{-- Stat 3 --}}
-            <div class="space-y-1">
-                <p class="text-2xl sm:text-3xl font-black text-white tracking-tight">4 Matra + 2 Biro</p>
-                <p class="text-[11px] font-bold text-white uppercase tracking-wider">Sektor Lapangan</p>
-                <p class="text-[10px] text-stone-400">Gunung, Tebing, Gua, Arung &amp; SAR</p>
-            </div>
+            <div class="relative w-full pb-6 sm:pb-8 mt-20 lg:mt-30">
+                <div class="max-w-4xl mx-auto">
+                    <div class="grid grid-cols-4 divide-x divide-white/30 text-center items-center">
+                        {{-- Item 1 --}}
+                        <div class="px-1.5 sm:px-4">
+                            <p
+                                class="italic font-bold text-white text-base sm:text-xl lg:text-2xl tracking-tight leading-tight">
+                                Berdiri
+                            </p>
+                            <p class="text-[10px] sm:text-xs text-stone-300 font-sans tracking-wide mt-1">
+                                Sejak 1998
+                            </p>
+                        </div>
 
-            {{-- Stat 4 --}}
-            <div class="space-y-1">
-                <p class="text-2xl sm:text-3xl font-black text-white tracking-tight">100% Solid</p>
-                <p class="text-[11px] font-bold text-white uppercase tracking-wider">Korsa Kolektif</p>
-                <p class="text-[10px] text-stone-400">STIA LAN Bandung Pride</p>
+                        {{-- Item 2 --}}
+                        <div class="px-1.5 sm:px-4">
+                            <p
+                                class="italic font-bold text-white text-base sm:text-xl lg:text-2xl tracking-tight leading-tight">
+                                4
+                            </p>
+                            <p class="text-[10px] sm:text-xs text-stone-300 font-sans tracking-wide mt-1">
+                                Divisi
+                            </p>
+                        </div>
+
+                        {{-- Item 3 --}}
+                        <div class="px-1.5 sm:px-4">
+                            <p
+                                class="italic font-bold text-white text-base sm:text-xl lg:text-2xl tracking-tight leading-tight">
+                                30
+                            </p>
+                            <p class="text-[10px] sm:text-xs text-stone-300 font-sans tracking-wide mt-1">
+                                Anggota
+                            </p>
+                        </div>
+
+                        {{-- Item 4 --}}
+                        <div class="px-1.5 sm:px-4">
+                            <p
+                                class="italic font-bold text-white text-base sm:text-xl lg:text-2xl tracking-tight leading-tight">
+                                Konservasi
+                            </p>
+                            <p class="text-[10px] sm:text-xs text-stone-300 font-sans tracking-wide mt-1">
+                                Ekologi
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    {{-- Bottom Stats Bar (Matching Reference Image) --}}
+
 </section>
