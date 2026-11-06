@@ -226,7 +226,7 @@
 
     {{-- Section 5: Footer (Identitas Organisasi, Navigasi Penting, Kontak & Media Sosial) --}}
     <footer id="kontak" class="bg-[#080A08] border-t border-stone-800 text-stone-300 py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="w-full px-6 lg:px-35">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-stone-800">
                 {{-- Column 1: Identity & Motto --}}
                 <div class="lg:col-span-4 space-y-4">
