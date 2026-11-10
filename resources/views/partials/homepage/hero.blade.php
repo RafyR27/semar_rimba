@@ -40,12 +40,12 @@
 
                 {{-- Primary and Secondary CTAs --}}
                 <div class="pt-2 flex flex-wrap items-center gap-4">
-                    <a href="#tentang"
+                    <a href="{{ route('tentang') }}"
                         class="px-6 py-2.5 rounded-full bg-gold hover:bg-gold-hover text-stone-950 font-semibold text-sm tracking-wide transition shadow-lg inline-flex items-center gap-2 group focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A08]">
                         <span>Mengenal Profil Kami</span>
                         <svg class="size-4 group-hover:translate-x-0.5 transition" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7-7 7 7-7 7" />
                         </svg>
                     </a>
                 </div>
