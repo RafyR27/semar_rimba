@@ -1,5 +1,5 @@
 <x-layouts::public :title="'SEMAR RIMBA — Mahasiswa Pecinta Alam Politeknik STIA LAN Bandung'">
-    @include('partials.homepage.hero')
+    @include('partials.homepage.hero', ['heroBanners' => $heroBanners ?? collect()])
 
     @include('partials.homepage.tentang')
 
