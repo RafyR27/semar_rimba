@@ -12,26 +12,39 @@
 
             <flux:sidebar.nav>
                 <flux:sidebar.group :heading="__('Platform')" class="grid">
+                    {{-- Dashboard --}}
                     <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </flux:sidebar.item>
+
+                    {{-- User Management --}}
+                    <flux:sidebar.item icon="user" :href="route('admin.hero-banners.index')" :current="request()->routeIs('admin.users-management.*')" wire:navigate>
+                        {{ __('Kelola Pengguna') }}
+                    </flux:sidebar.item>
+
+                    {{-- Hero --}}
                     <flux:sidebar.item icon="photo" :href="route('admin.hero-banners.index')" :current="request()->routeIs('admin.hero-banners.*')" wire:navigate>
                         {{ __('Hero Banner') }}
+                    </flux:sidebar.item>
+
+                    {{-- Berita --}}
+                    <flux:sidebar.item icon="newspaper" :href="route('admin.hero-banners.index')" :current="request()->routeIs('admin.news.*')" wire:navigate>
+                        {{ __('Berita') }}
+                    </flux:sidebar.item>
+
+                    {{-- Galeri --}}
+                    <flux:sidebar.item icon="camera" :href="route('admin.hero-banners.index')" :current="request()->routeIs('admin.gallerys.*')" wire:navigate>
+                        {{ __('Galeri') }}
+                    </flux:sidebar.item>
+
+                    {{-- Pengurus --}}
+                    <flux:sidebar.item icon="folder-open" :href="route('admin.hero-banners.index')" :current="request()->routeIs('admin.divisi.*')" wire:navigate>
+                        {{ __('Divisi') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
             <flux:spacer />
-
-            <flux:sidebar.nav>
-                <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    {{ __('Repository') }}
-                </flux:sidebar.item>
-
-                <flux:sidebar.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                    {{ __('Documentation') }}
-                </flux:sidebar.item>
-            </flux:sidebar.nav>
 
             <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
         </flux:sidebar>
