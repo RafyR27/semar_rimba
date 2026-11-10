@@ -1,19 +1,38 @@
 <section id="hero"
     class="relative overflow-hidden text-white flex flex-col justify-end bg-[#080A08] min-h-[calc(100dvh-80px)] px-6 lg:px-35">
+    @php
+        $activeBanners = $heroBanners ?? collect();
+        $primaryBanner = $activeBanners->first();
+        $heroTitle = $primaryBanner?->title ?: 'SEMAR RIMBA';
+        $heroSubtitle = $primaryBanner?->subtitle ?: 'UKM Pecinta Alam Politeknik STIA LAN Bandung';
+        $heroDescription = $primaryBanner?->description ?: 'Berdiri sejak tahun 1998 di lingkungan Politeknik STIA LAN Bandung, SEMAR RIMBA merupakan wadah pembinaan karakter, penjelajahan alam bebas nusantara, serta pengabdian, dan kemanusiaan.';
+        $buttonText = $primaryBanner?->button_text ?: 'Mengenal Profil Kami';
+        $buttonUrl = $primaryBanner?->button_url ?: '#tentang';
+    @endphp
+
     {{-- Atmospheric Expedition Nature Backdrop Slider (Swiper) --}}
     <div class="absolute inset-0 pointer-events-none overflow-hidden select-none z-0">
         <div class="swiper hero-swiper size-full">
             <div class="swiper-wrapper size-full">
-                <div class="swiper-slide size-full">
-                    <img src="{{ asset('images/gambar2.webp') }}"
-                        alt="SEMAR RIMBA - Ekspedisi Rimba"
-                        class="size-full object-cover object-center opacity-35" loading="eager" />
-                </div>
-                <div class="swiper-slide size-full">
-                    <img src="{{ asset('images/gambar1.webp') }}"
-                        alt="SEMAR RIMBA - Penjelajahan Alam"
-                        class="size-full object-cover object-center opacity-35" loading="lazy" />
-                </div>
+                @forelse ($activeBanners as $banner)
+                    <div class="swiper-slide size-full">
+                        <img src="{{ $banner->image_url }}"
+                            alt="{{ $banner->title }}"
+                            class="size-full object-cover object-center opacity-35"
+                            loading="{{ $loop->first ? 'eager' : 'lazy' }}" />
+                    </div>
+                @empty
+                    <div class="swiper-slide size-full">
+                        <img src="{{ asset('images/gambar2.webp') }}"
+                            alt="SEMAR RIMBA - Ekspedisi Rimba"
+                            class="size-full object-cover object-center opacity-35" loading="eager" />
+                    </div>
+                    <div class="swiper-slide size-full">
+                        <img src="{{ asset('images/gambar1.webp') }}"
+                            alt="SEMAR RIMBA - Penjelajahan Alam"
+                            class="size-full object-cover object-center opacity-35" loading="lazy" />
+                    </div>
+                @endforelse
             </div>
         </div>
         <div class="absolute inset-0 bg-linear-to-t from-[#080A08] via-[#080A08]/40 to-transparent"></div>
@@ -26,23 +45,22 @@
                 <div>
                     <h1
                         class="text-5xl lg:text-6xl font-black tracking-wider text-white leading-[1.12] text-balance font-yellow drop-shadow-sm">
-                        SEMAR RIMBA
+                        {{ $heroTitle }}
                     </h1>
                     <p class="block text-sm lg:text-lg font-bold text-gold tracking-wide mt-2 leading-snug drop-shadow-sm">
-                        UKM Pecinta Alam Politeknik STIA LAN Bandung
+                        {{ $heroSubtitle }}
                     </p>
                 </div>
 
                 <p class="text-sm sm:text-base text-stone-200 leading-relaxed text-pretty max-w-2xl drop-shadow-xs">
-                    Berdiri sejak tahun 1998 di lingkungan Politeknik STIA LAN Bandung, SEMAR RIMBA merupakan wadah
-                    pembinaan karakter, penjelajahan alam bebas nusantara, serta pengabdian, dan kemanusiaan.
+                    {{ $heroDescription }}
                 </p>
 
                 {{-- Primary and Secondary CTAs --}}
                 <div class="pt-2 flex flex-wrap items-center gap-4">
-                    <a href="{{ route('tentang') }}"
+                    <a href="{{ $buttonUrl }}"
                         class="px-6 py-2.5 rounded-full bg-gold hover:bg-gold-hover text-stone-950 font-semibold text-sm tracking-wide transition shadow-lg inline-flex items-center gap-2 group focus:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-[#080A08]">
-                        <span>Mengenal Profil Kami</span>
+                        <span>{{ $buttonText }}</span>
                         <svg class="size-4 group-hover:translate-x-0.5 transition" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7-7 7 7-7 7" />
