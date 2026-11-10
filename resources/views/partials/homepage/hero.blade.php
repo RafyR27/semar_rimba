@@ -63,7 +63,7 @@
                         <span>{{ $buttonText }}</span>
                         <svg class="size-4 group-hover:translate-x-0.5 transition" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7-7 7 7-7 7" />
                         </svg>
                     </a>
                 </div>

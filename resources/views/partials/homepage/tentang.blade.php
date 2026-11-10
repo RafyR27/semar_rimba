@@ -11,7 +11,7 @@
                 kesiapsiagaan kemanusiaan, dan pelestarian ekologi nusantara.
             </p>
             <p class="mt-4 text-base sm:text-lg text-stone-600 leading-relaxed text-pretty">
-                Didirikan pada tanggal <strong class="font-semibold text-stone-900">17 Agustus 1998 (dummy)</strong> di
+                Didirikan pada tanggal <strong class="font-semibold text-stone-900">17 Agustus 1998</strong> di
                 kampus Politeknik STIA LAN Bandung, Unit Kegiatan Mahasiswa Pecinta Alam SEMAR RIMBA hadir sebagai
                 wahana pembentukan karakter mandiri dan kepemimpinan rimbawan muda. Organisasi ini memadukan
                 kedisiplinan akademis dengan keahlian teknis eksplorasi rimba raya Indonesia, operasi kemanusiaan (SAR),

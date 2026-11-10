@@ -4,14 +4,14 @@
             <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-black leading-tight text-balance">
                 Jalur Menuju Syal Kuning
             </h2>
-            <p class="mt-4 text-base sm:text-lg text-stone-600 leading-relaxed text-pretty">
+            <p class="mt-4 text-base sm:text-lg  leading-relaxed text-pretty">
                 Setiap anggota Semar Rimba dibina secara bertahap, dari pendidikan &amp; latihan dasar sampai penyematan syal kuning.
             </p>
         </div>
 
         {{-- 2x2 Structured Activity Showcase Grid (Desktop) / Swiper Slider (Mobile Only) --}}
         <div class="mt-14 swiper rangkaian-swiper overflow-hidden lg:!overflow-visible">
-            <div class="swiper-wrapper lg:!transform-none lg:!grid lg:grid-cols-4 lg:gap-8 text-stone-600">
+            <div class="swiper-wrapper lg:!transform-none lg:!grid lg:grid-cols-4 lg:gap-8 ">
                 {{-- Activity 1: DIKLAT --}}
                 <article class="swiper-slide lg:!w-auto lg:!h-auto rounded-md flex flex-col justify-between">
                     <div class="space-y-4">
