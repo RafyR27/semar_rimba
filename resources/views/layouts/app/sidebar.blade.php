@@ -18,6 +18,9 @@
                     <flux:sidebar.item icon="photo" :href="route('admin.hero-banners.index')" :current="request()->routeIs('admin.hero-banners.*')" wire:navigate>
                         {{ __('Hero Banner') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="newspaper" :href="route('admin.beritas.index')" :current="request()->routeIs('admin.beritas.*')" wire:navigate>
+                        {{ __('Berita') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
