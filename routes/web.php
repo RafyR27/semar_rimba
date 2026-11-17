@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\HeroBannerController;
 use App\Models\HeroBanner;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('hero-banners.toggle');
         Route::resource('hero-banners', HeroBannerController::class)
             ->parameters(['hero-banners' => 'heroBanner'])
+            ->except(['show']);
+
+        Route::patch('galleries/{gallery}/toggle', [GalleryController::class, 'toggleActive'])
+            ->name('galleries.toggle');
+        Route::resource('galleries', GalleryController::class)
+            ->parameters(['galleries' => 'gallery'])
             ->except(['show']);
     });
 });
