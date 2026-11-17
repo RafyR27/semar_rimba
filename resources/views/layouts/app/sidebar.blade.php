@@ -18,6 +18,9 @@
                     <flux:sidebar.item icon="photo" :href="route('admin.hero-banners.index')" :current="request()->routeIs('admin.hero-banners.*')" wire:navigate>
                         {{ __('Hero Banner') }}
                     </flux:sidebar.item>
+                    <flux:sidebar.item icon="calendar-days" :href="route('admin.activities.index')" :current="request()->routeIs('admin.activities.*')" wire:navigate>
+                        {{ __('Kelola Kegiatan') }}
+                    </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
