@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ActivityController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\BeritaController as AdminBeritaController;
 use App\Http\Controllers\Admin\HeroBannerController;
@@ -31,6 +32,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->parameters(['hero-banners' => 'heroBanner'])
             ->except(['show']);
 
+        Route::patch('activities/{activity}/toggle', [ActivityController::class, 'toggleActive'])
+            ->name('activities.toggle');
+        Route::resource('activities', ActivityController::class)
+            ->parameters(['activities' => 'activity'])
         Route::patch('galleries/{gallery}/toggle', [GalleryController::class, 'toggleActive'])
             ->name('galleries.toggle');
         Route::resource('galleries', GalleryController::class)
