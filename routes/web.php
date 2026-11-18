@@ -1,12 +1,17 @@
 <?php
 
+use App\Http\Controllers\Admin\BeritaController as AdminBeritaController;
 use App\Http\Controllers\Admin\HeroBannerController;
+use App\Http\Controllers\BeritaController;
 use App\Models\HeroBanner;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome')->name('home');
 Route::view('/tentang', 'tentang')->name('tentang');
 Route::view('/kegiatan', 'kegiatan')->name('kegiatan');
+
+Route::get('/berita', [BeritaController::class, 'index'])->name('berita.index');
+Route::get('/berita/{berita:slug}', [BeritaController::class, 'show'])->name('berita.show');
+
 Route::get('/', function () {
     $heroBanners = HeroBanner::active()->ordered()->get();
 
@@ -23,6 +28,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('hero-banners.toggle');
         Route::resource('hero-banners', HeroBannerController::class)
             ->parameters(['hero-banners' => 'heroBanner'])
+            ->except(['show']);
+
+        Route::patch('beritas/{berita}/toggle', [AdminBeritaController::class, 'togglePublish'])
+            ->name('beritas.toggle');
+        Route::resource('beritas', AdminBeritaController::class)
+            ->parameters(['beritas' => 'berita'])
             ->except(['show']);
     });
 });
