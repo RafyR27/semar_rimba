@@ -161,6 +161,17 @@
                         x-transition:enter-end="opacity-100 scale-x-100"></span>
                 </a>
 
+                {{-- Item: Berita (Direct Link) --}}
+                <a href="{{ route('berita.index') }}"
+                    @mouseenter="scheduleClose()"
+                    @click="closeMenuImmediately()"
+                    class="relative h-full flex items-center transition text-sm sm:text-sm font-medium focus:outline-none {{ request()->routeIs('berita.*') ? 'text-gold' : 'text-stone-300 hover:text-gold' }}">
+                    <span>Berita</span>
+                    @if (request()->routeIs('berita.*'))
+                        <span class="absolute bottom-0 left-0 w-full h-[2px] bg-gold"></span>
+                    @endif
+                </a>
+
                 {{-- Item: Divisi --}}
                 <a href="{{ route('home') }}#divisi"
                     @mouseenter="openMenu('divisi')"
@@ -329,6 +340,13 @@
                                 </a>
                             </div>
                         </div>
+
+                        {{-- Direct Link: Berita --}}
+                        <a href="{{ route('berita.index') }}" @click="mobileOpen = false"
+                            class="py-3 px-2 flex items-center justify-between font-bold transition {{ request()->routeIs('berita.*') ? 'text-gold' : 'text-stone-200 hover:text-gold' }}">
+                            <span>Berita</span>
+                            <span aria-hidden="true" class="text-stone-500">&rarr;</span>
+                        </a>
 
                         {{-- Accordion: Divisi --}}
                         <div class="py-1">
@@ -623,6 +641,7 @@
                         <li><a href="{{ route('tentang') }}" class="hover:text-gold transition">Tentang Kami</a>
                         </li>
                         <li><a href="{{ route('kegiatan') }}" class="hover:text-gold transition">Kegiatan &amp; Pengabdian</a></li>
+                        <li><a href="{{ route('berita.index') }}" class="hover:text-gold transition">Berita &amp; Kabar</a></li>
                         <li><a href="{{ route('home') }}#divisi" class="hover:text-gold transition">Divisi</a></li>
                         <li><a href="#kontak" class="hover:text-gold transition">Kontak Sekretariat</a></li>
                     </ul>

@@ -20,6 +20,8 @@
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="squares-2x2" :href="route('admin.galleries.index')" :current="request()->routeIs('admin.galleries.*')" wire:navigate>
                         {{ __('Kelola Galeri') }}
+                    <flux:sidebar.item icon="newspaper" :href="route('admin.beritas.index')" :current="request()->routeIs('admin.beritas.*')" wire:navigate>
+                        {{ __('Berita') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
