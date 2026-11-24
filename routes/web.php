@@ -43,7 +43,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('divisi', DivisiController::class)->except(['show']);
 
         Route::patch('pengurus/{pengurus}/toggle', [PengurusController::class, 'toggleActive'])->name('pengurus.toggle');
-        Route::resource('pengurus', PengurusController::class)->except(['show']);
+        Route::resource('pengurus', PengurusController::class)
+        ->parameters(['pengurus' => 'pengurus'])
+        ->except(['show']);
     });
 });
 
