@@ -24,7 +24,12 @@
         ]);
 
     $divisis = class_exists(\App\Models\Divisi::class) && \Illuminate\Support\Facades\Schema::hasTable('divisis')
-        ? \App\Models\Divisi::all()
+        ? \App\Models\Divisi::query()->where('is_active', true)->orderBy('nama')->get()->map(fn ($divisi, $index) => (object) [
+            'title' => $divisi->nama,
+            'desc' => $divisi->deskripsi ?: 'Spesialisasi penjelajahan alam bebas SEMAR RIMBA.',
+            'url' => '#divisi',
+            'matra' => 'Divisi ' . ($index + 1),
+        ])
         : collect([
             (object) [
                 'title' => 'Gunung Hutan',
