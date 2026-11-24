@@ -20,10 +20,15 @@
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="calendar-days" :href="route('admin.activities.index')" :current="request()->routeIs('admin.activities.*')" wire:navigate>
                         {{ __('Kelola Kegiatan') }}
+                    </flux:sidebar.item>
                     <flux:sidebar.item icon="squares-2x2" :href="route('admin.galleries.index')" :current="request()->routeIs('admin.galleries.*')" wire:navigate>
                         {{ __('Kelola Galeri') }}
+                    </flux:sidebar.item>
                     <flux:sidebar.item icon="newspaper" :href="route('admin.beritas.index')" :current="request()->routeIs('admin.beritas.*')" wire:navigate>
                         {{ __('Berita') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="building-office-2" :href="route('admin.organization-profile.edit')" :current="request()->routeIs('admin.organization-profile.*')" wire:navigate>
+                        {{ __('Kelola Profil dan Kontak') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
             </flux:sidebar.nav>
