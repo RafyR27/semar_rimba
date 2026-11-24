@@ -35,11 +35,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('activities/{activity}/toggle', [ActivityController::class, 'toggleActive'])
             ->name('activities.toggle');
         Route::resource('activities', ActivityController::class)
-            ->parameters(['activities' => 'activity'])
+            ->parameters(['activities' => 'activity']);
         Route::patch('galleries/{gallery}/toggle', [GalleryController::class, 'toggleActive'])
             ->name('galleries.toggle');
         Route::resource('galleries', GalleryController::class)
-            ->parameters(['galleries' => 'gallery'])
+            ->parameters(['galleries' => 'gallery']);
         Route::patch('beritas/{berita}/toggle', [AdminBeritaController::class, 'togglePublish'])
             ->name('beritas.toggle');
         Route::resource('beritas', AdminBeritaController::class)
