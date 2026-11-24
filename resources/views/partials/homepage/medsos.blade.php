@@ -5,7 +5,8 @@
         </h2>
 
         <div class="gap-5 flex">
-            <a href="" aria-label="Instagram" class="group bg-white hover:bg-gold text-stone-900 hover:text-white rounded-full p-3 transition-colors duration-300 inline-flex items-center justify-center shadow-xs">
+            <a href="" aria-label="Instagram"
+                class="group bg-white hover:bg-gold text-stone-900 hover:text-white rounded-full p-3 transition-colors duration-300 inline-flex items-center justify-center shadow-xs">
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     class="transition-colors duration-300">
@@ -15,9 +16,13 @@
                 </svg>
             </a>
 
-            <a href="" aria-label="TikTok" class="group bg-white hover:bg-gold text-stone-900 hover:text-white rounded-full p-3 transition-colors duration-300 inline-flex items-center justify-center shadow-xs">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
-                    class="transition-colors duration-300"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+            <a href="" aria-label="TikTok"
+                class="group bg-white hover:bg-gold text-stone-900 hover:text-white rounded-full p-3 transition-colors duration-300 inline-flex items-center justify-center shadow-xs">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+                    class="transition-colors duration-300">
+                    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+                </svg>
             </a>
         </div>
     </div>
