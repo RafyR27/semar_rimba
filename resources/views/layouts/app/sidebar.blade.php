@@ -26,15 +26,19 @@
                     <flux:sidebar.item icon="photo" :href="route('admin.hero-banners.index')" :current="request()->routeIs('admin.hero-banners.*')" wire:navigate>
                         {{ __('Hero Banner') }}
                     </flux:sidebar.item>
+                    {{-- Kegiatan --}}
+                    <flux:sidebar.item icon="calendar-days" :href="route('admin.activities.index')" :current="request()->routeIs('admin.activities.*')" wire:navigate>
+                        {{ __('Kelola Kegiatan') }}
+                    </flux:sidebar.item>
 
                     {{-- Berita --}}
-                    <flux:sidebar.item icon="newspaper" :href="route('admin.hero-banners.index')" :current="request()->routeIs('admin.news.*')" wire:navigate>
+                    <flux:sidebar.item icon="newspaper" :href="route('admin.beritas.index')" :current="request()->routeIs('admin.beritas.*')" wire:navigate>
                         {{ __('Berita') }}
                     </flux:sidebar.item>
 
                     {{-- Galeri --}}
-                    <flux:sidebar.item icon="camera" :href="route('admin.hero-banners.index')" :current="request()->routeIs('admin.gallerys.*')" wire:navigate>
-                        {{ __('Galeri') }}
+                    <flux:sidebar.item icon="squares-2x2" :href="route('admin.galleries.index')" :current="request()->routeIs('admin.galleries.*')" wire:navigate>
+                        {{ __('Kelola Galeri') }}
                     </flux:sidebar.item>
 
                     {{-- Pengurus --}}
