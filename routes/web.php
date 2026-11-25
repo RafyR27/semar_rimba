@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ActivityController;
 use App\Http\Controllers\Admin\BeritaController as AdminBeritaController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\HeroBannerController;
+use App\Http\Controllers\Admin\OrganizationProfileController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\BeritaController;
 use App\Models\HeroBanner;
@@ -84,34 +85,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('activities', ActivityController::class)
             ->parameters(['activities' => 'activity'])
             ->except(['show']);
-
         Route::patch('galleries/{gallery}/toggle', [GalleryController::class, 'toggleActive'])
             ->name('galleries.toggle');
         Route::resource('galleries', GalleryController::class)
             ->parameters(['galleries' => 'gallery'])
             ->except(['show']);
-
         Route::patch('beritas/{berita}/toggle', [AdminBeritaController::class, 'togglePublish'])
             ->name('beritas.toggle');
         Route::resource('beritas', AdminBeritaController::class)
             ->parameters(['beritas' => 'berita'])
             ->except(['show']);
-    });
 
-    Route::prefix('penulis')->name('penulis.')->middleware('role:penulis')->group(function () {
-        Route::view('dashboard', 'dashboard')->name('dashboard');
-
-        Route::patch('activities/{activity}/toggle', [ActivityController::class, 'toggleActive'])
-            ->name('activities.toggle');
-        Route::resource('activities', ActivityController::class)
-            ->parameters(['activities' => 'activity'])
-            ->except(['show']);
-
-        Route::patch('beritas/{berita}/toggle', [AdminBeritaController::class, 'togglePublish'])
-            ->name('beritas.toggle');
-        Route::resource('beritas', AdminBeritaController::class)
-            ->parameters(['beritas' => 'berita'])
-            ->except(['show']);
+        Route::get('organization-profile', [OrganizationProfileController::class, 'edit'])
+            ->name('organization-profile.edit');
+        Route::put('organization-profile', [OrganizationProfileController::class, 'update'])
+            ->name('organization-profile.update');
     });
 });
 
