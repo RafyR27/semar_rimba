@@ -615,6 +615,7 @@
     </main>
 
     {{-- Section 5: Footer (Identitas Organisasi, Navigasi Penting, Kontak & Media Sosial) --}}
+    @php($profile = \App\Models\OrganizationProfile::current())
     <footer id="kontak" class="bg-[#080A08] border-t border-stone-800 text-stone-300 py-16">
         <div class="w-full px-6 lg:px-35">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-stone-800">
@@ -622,19 +623,17 @@
                 <div class="lg:col-span-4 space-y-4">
                     <div class="flex items-center gap-3">
                         <div class="w-9 h-9">
-                            <img src={{ asset('images/logo.png') }} alt="Semar Rimba">
+                            <img src={{ $profile?->logoUrl() ?? asset('images/logo.png') }} alt="{{ $profile?->displayName() ?? 'Semar Rimba' }}">
                         </div>
                         <div class="flex flex-col">
-                            <h3 class="text-base font-black tracking-wider text-white">SEMAR RIMBA</h3>
+                            <h3 class="text-base font-black tracking-wider text-white">{{ $profile?->displayName() ?? 'SEMAR RIMBA' }}</h3>
                             <p class="text-[10px] uppercase tracking-widest text-gold font-bold">POLITEKNIK STIA LAN
                                 BANDUNG</p>
                         </div>
                     </div>
 
                     <p class="text-sm text-stone-400 leading-relaxed">
-                        Unit Kegiatan Mahasiswa Pecinta Alam Politeknik STIA LAN Bandung. Berdiri sejak tahun 1998
-                        (dummy), sebagai wadah eksplorasi kealaman nusantara, pembinaan karakter kemandirian mahasiswa,
-                        ketangguhan fisik, dan kepedulian kelestarian lingkungan hidup.
+                        {{ $profile?->deskripsi_singkat ?? 'Unit Kegiatan Mahasiswa Pecinta Alam Politeknik STIA LAN Bandung. Berdiri sejak tahun 1998 (dummy), sebagai wadah eksplorasi kealaman nusantara, pembinaan karakter kemandirian mahasiswa, ketangguhan fisik, dan kepedulian kelestarian lingkungan hidup.' }}
                     </p>
                 </div>
 
@@ -665,27 +664,58 @@
                 </div>
 
                 {{-- Column 4: Kontak & Media Sosial --}}
-                <div class="lg:col-span-3 space-y-3">
-                    <h4 class="text-sm font-bold uppercase tracking-widest text-white">KONTAK &amp; MEDIA</h4>
-                    <p class="text-sm text-stone-400 leading-relaxed">
-                        Gedung UKM Kampus Politeknik STIA LAN Bandung<br />
-                        Jl. Hayam Wuruk No. 34, Citarum, Kec. Bandung Wetan, Kota Bandung, Jawa Barat 40115
-                    </p>
-                    <div class="pt-1 space-y-1 text-sm">
-                        <p class="text-stone-300">Surel: <a href="mailto:sekretariat@semarrimba-lan.org"
-                                class="text-gold font-semibold hover:underline">sekretariat@semarrimba-lan.org</a></p>
-                        <p class="text-stone-300">Telepon: <span class="text-gold font-semibold">+62 (022)
-                                423-7484</span></p>
-                        <p class="text-stone-300">Instagram: <a href="https://instagram.com/semarrimba_lan"
-                                target="_blank" rel="noopener noreferrer"
-                                class="text-gold font-semibold hover:underline">@semarrimba_lan</a></p>
-                    </div>
-                </div>
+                                <div class="lg:col-span-3 space-y-3">
+                                    <?php
+                                        $contactEmail = $profile?->email;
+                                        $contactTelepon = $profile?->telepon;
+                                        $contactWhatsapp = $profile?->whatsapp;
+                                        $contactInstagram = $profile?->instagram_url;
+                                        $contactTiktok = $profile?->tiktok_url;
+                                        $contactAlamat = $profile?->alamat;
+                                    ?>
+                                    <h4 class="text-sm font-bold uppercase tracking-widest text-white">KONTAK & MEDIA</h4>
+                                    @if (filled($contactAlamat))
+                                        <p class="text-sm text-stone-400 leading-relaxed">
+                                            {!! nl2br(e($contactAlamat)) !!}
+                                        </p>
+                                    @endif
+                                    @if (filled($profile?->google_maps_url))
+                                        <a href="{{ $profile->google_maps_url }}" target="_blank" rel="noopener noreferrer"
+                                            class="inline-flex items-center gap-1 text-xs font-bold text-gold hover:underline">
+                                            <span>Lihat di Google Maps</span>
+                                            <span>&rarr;</span>
+                                        </a>
+                                    @endif
+                                    <div class="pt-1 space-y-1 text-sm">
+                                        @if (filled($contactEmail))
+                                            <p class="text-stone-300">Surel: <a href="mailto:{{ $contactEmail }}"
+                                                    class="text-gold font-semibold hover:underline">{{ $contactEmail }}</a></p>
+                                        @endif
+                                        @if (filled($contactTelepon))
+                                            <p class="text-stone-300">Telepon: <span class="text-gold font-semibold">{{ $contactTelepon }}</span></p>
+                                        @endif
+                                        @if (filled($contactWhatsapp))
+                                            <p class="text-stone-300">WhatsApp: <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $contactWhatsapp) }}"
+                                                    target="_blank" rel="noopener noreferrer"
+                                                    class="text-gold font-semibold hover:underline">{{ $contactWhatsapp }}</a></p>
+                                        @endif
+                                        @if (filled($contactInstagram))
+                                            <p class="text-stone-300">Instagram: <a href="{{ $contactInstagram }}"
+                                                    target="_blank" rel="noopener noreferrer"
+                                                    class="text-gold font-semibold hover:underline">{{ '@'.ltrim(basename(rtrim($contactInstagram, '/')), '@') }}</a></p>
+                                        @endif
+                                        @if (filled($contactTiktok))
+                                            <p class="text-stone-300">TikTok: <a href="{{ $contactTiktok }}"
+                                                    target="_blank" rel="noopener noreferrer"
+                                                    class="text-gold font-semibold hover:underline">{{ '@'.ltrim(basename(rtrim($contactTiktok, '/')), '@') }}</a></p>
+                                        @endif
+                                    </div>
+                                </div>
             </div>
 
             {{-- Copyright & Tagline Bar --}}
             <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-stone-500">
-                <p>&copy; 2024 UKM Mapala Semar Rimba Politeknik STIA LAN Bandung. Seluruh hak cipta dilindungi.</p>
+                <p>&copy; {{ date('Y') }} UKM Mapala Semar Rimba Politeknik STIA LAN Bandung. Seluruh hak cipta dilindungi.</p>
             </div>
         </div>
     </footer>

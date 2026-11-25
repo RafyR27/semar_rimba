@@ -1,4 +1,9 @@
 <section id="visi-misi" class="scroll-mt-20 py-20 lg:py-28 bg-[#0B1510] text-white border-b border-white/10">
+    <?php
+        $profile = \App\Models\OrganizationProfile::current();
+        $missionItems = $profile?->missionItems() ?? [];
+        $romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+    ?>
     <div class="w-full px-6 lg:px-35 space-y-20">
         {{-- Top Block: Visi & Misi Split Layout --}}
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
@@ -13,7 +18,7 @@
                         Visi Organisasi
                     </h3>
                     <p class="text-lg sm:text-xl font-bold text-white leading-snug text-pretty">
-                        &ldquo;Menjadikan SEMAR RIMBA sebagai wadah pembinaan mahasiswa Politeknik STIA LAN Bandung yang berkarakter tangguh, profesional dalam keahlian kealaman, serta terdepan dalam aksi kemanusiaan dan pelestarian lingkungan hidup.&rdquo;
+                        {{ $profile?->visi ?? '“Menjadikan SEMAR RIMBA sebagai wadah pembinaan mahasiswa Politeknik STIA LAN Bandung yang berkarakter tangguh, profesional dalam keahlian kealaman, serta terdepan dalam aksi kemanusiaan dan pelestarian lingkungan hidup.”' }}
                     </p>
                 </div>
 
@@ -27,17 +32,36 @@
                 <div class="rounded-2xl bg-[#080A08]/70 border border-white/10 divide-y divide-white/10">
                     <div class="p-6 sm:p-8">
                         <h3 class="text-xl font-black text-white">
-                            Empat Pilar Misi SEMAR RIMBA
+                            {{ $missionItems !== [] ? 'Pilar Misi' : 'Empat Pilar Misi' }} {{ $profile?->displayName() ?? 'SEMAR RIMBA' }}
                         </h3>
                         <p class="text-sm text-stone-300 mt-1">
                             Langkah konkret yang dijalankan secara berkesinambungan pada setiap periode kepengurusan.
                         </p>
                     </div>
 
-                    <div class="p-6 sm:p-8 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
-                        <span class="px-3 py-1 rounded bg-gold/15 border border-gold/30 text-gold font-black text-xs shrink-0">
-                            Misi I
-                        </span>
+                    @if ($missionItems !== [])
+                        @foreach ($missionItems as $index => $item)
+                            <div class="p-6 sm:p-8 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
+                                <span class="px-3 py-1 rounded bg-gold/15 border border-gold/30 text-gold font-black text-xs shrink-0">
+                                    Misi {{ $romanNumerals[$index] ?? $index + 1 }}
+                                </span>
+                                <div class="space-y-1.5">
+                                    <h4 class="text-base sm:text-lg font-bold text-white">
+                                        {{ $item['judul'] }}
+                                    </h4>
+                                    @if ($item['deskripsi'])
+                                        <p class="text-sm text-stone-300 leading-relaxed">
+                                            {{ $item['deskripsi'] }}
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="p-6 sm:p-8 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
+                            <span class="px-3 py-1 rounded bg-gold/15 border border-gold/30 text-gold font-black text-xs shrink-0">
+                                Misi I
+                            </span>
                         <div class="space-y-1.5">
                             <h4 class="text-base sm:text-lg font-bold text-white">
                                 Kaderisasi &amp; Pembinaan Karakter Mandiri
@@ -89,6 +113,7 @@
                             </p>
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>

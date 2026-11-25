@@ -5,7 +5,9 @@
         $primaryBanner = $activeBanners->first();
         $heroTitle = $primaryBanner?->title ?: 'SEMAR RIMBA';
         $heroSubtitle = $primaryBanner?->subtitle ?: 'UKM Pecinta Alam Politeknik STIA LAN Bandung';
-        $heroDescription = $primaryBanner?->description ?: 'Berdiri sejak tahun 1998 di lingkungan Politeknik STIA LAN Bandung, SEMAR RIMBA merupakan wadah pembinaan karakter, penjelajahan alam bebas nusantara, serta pengabdian, dan kemanusiaan.';
+        $heroDescription =
+            $primaryBanner?->description ?:
+            'Berdiri sejak tahun 1998 di lingkungan Politeknik STIA LAN Bandung, SEMAR RIMBA merupakan wadah pembinaan karakter, penjelajahan alam bebas nusantara, serta pengabdian, dan kemanusiaan.';
         $buttonText = $primaryBanner?->button_text ?: 'Mengenal Profil Kami';
         $buttonUrl = $primaryBanner?->button_url ?: '#tentang';
     @endphp
@@ -16,20 +18,17 @@
             <div class="swiper-wrapper size-full">
                 @forelse ($activeBanners as $banner)
                     <div class="swiper-slide size-full">
-                        <img src="{{ $banner->image_url }}"
-                            alt="{{ $banner->title }}"
+                        <img src="{{ $banner->image_url }}" alt="{{ $banner->title }}"
                             class="size-full object-cover object-center opacity-35"
                             loading="{{ $loop->first ? 'eager' : 'lazy' }}" />
                     </div>
                 @empty
                     <div class="swiper-slide size-full">
-                        <img src="{{ asset('images/gambar2.webp') }}"
-                            alt="SEMAR RIMBA - Ekspedisi Rimba"
+                        <img src="{{ asset('images/gambar2.webp') }}" alt="SEMAR RIMBA - Ekspedisi Rimba"
                             class="size-full object-cover object-center opacity-35" loading="eager" />
                     </div>
                     <div class="swiper-slide size-full">
-                        <img src="{{ asset('images/gambar1.webp') }}"
-                            alt="SEMAR RIMBA - Penjelajahan Alam"
+                        <img src="{{ asset('images/gambar1.webp') }}" alt="SEMAR RIMBA - Penjelajahan Alam"
                             class="size-full object-cover object-center opacity-35" loading="lazy" />
                     </div>
                 @endforelse
@@ -47,7 +46,8 @@
                         class="text-5xl lg:text-6xl font-black tracking-wider text-white leading-[1.12] text-balance font-yellow drop-shadow-sm">
                         {{ $heroTitle }}
                     </h1>
-                    <p class="block text-sm lg:text-lg font-bold text-gold tracking-wide mt-2 leading-snug drop-shadow-sm">
+                    <p
+                        class="block text-sm lg:text-lg font-bold text-gold tracking-wide mt-2 leading-snug drop-shadow-sm">
                         {{ $heroSubtitle }}
                     </p>
                 </div>
@@ -63,7 +63,8 @@
                         <span>{{ $buttonText }}</span>
                         <svg class="size-4 group-hover:translate-x-0.5 transition" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7-7 7 7-7 7" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 12h14m-7-7 7 7-7 7" />
                         </svg>
                     </a>
                 </div>
