@@ -1,10 +1,8 @@
 <x-layouts::app :title="__('Edit Hero Banner')">
-    <div class="max-w-4xl flex flex-col gap-6">
+    <div class="mx-auto flex w-full max-w-5xl flex-col gap-6">
         {{-- Header & Back Navigation --}}
-        <div class="flex items-center gap-3">
-            <flux:button variant="subtle" icon="arrow-left" href="{{ route('admin.hero-banners.index') }}" wire:navigate>
-                {{ __('Kembali') }}
-            </flux:button>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <flux:button class="cursor-pointer" variant="subtle" icon="arrow-left" href="{{ route('admin.hero-banners.index') }}" wire:navigate />
             <div>
                 <flux:heading size="xl" level="1">{{ __('Edit Hero Banner') }}</flux:heading>
                 <flux:subheading size="sm" class="mt-0.5">
@@ -33,7 +31,14 @@
 
         {{-- Form Card --}}
         <div class="p-6 sm:p-8 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-xs">
-            <form method="POST" action="{{ route('admin.hero-banners.update', $banner) }}" enctype="multipart/form-data" class="space-y-6">
+            <form
+                method="POST"
+                action="{{ route('admin.hero-banners.update', $banner) }}"
+                enctype="multipart/form-data"
+                x-data="{ submitting: false }"
+                @submit="submitting = true"
+                class="space-y-6"
+            >
                 @csrf
                 @method('PUT')
 
@@ -188,11 +193,26 @@
 
                 {{-- Action Buttons --}}
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
-                    <flux:button variant="subtle" href="{{ route('admin.hero-banners.index') }}" wire:navigate>
+                    <flux:button
+                        class="cursor-pointer"
+                        variant="subtle"
+                        href="{{ route('admin.hero-banners.index') }}"
+                        wire:navigate
+                        x-bind:class="{ 'pointer-events-none opacity-60': submitting }"
+                    >
                         {{ __('Batal') }}
                     </flux:button>
-                    <flux:button variant="primary" type="submit" icon="check">
-                        {{ __('Simpan Perubahan') }}
+                    <flux:button
+                        class="cursor-pointer"
+                        variant="primary"
+                        type="submit"
+                        x-bind:disabled="submitting"
+                    >
+                        <span class="inline-flex items-center justify-center gap-2">
+                            <flux:icon.arrow-path x-show="submitting" x-cloak class="size-4 animate-spin" />
+                            <flux:icon.check x-show="!submitting" class="size-4" />
+                            <span>{{ __('Simpan Perubahan') }}</span>
+                        </span>
                     </flux:button>
                 </div>
             </form>

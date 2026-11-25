@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BeritaRequest;
 use App\Models\Berita;
+use App\Models\User;
 use App\Services\CloudinaryService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -19,23 +20,51 @@ use Throwable;
 class BeritaController extends Controller
 {
     /**
+     * Resolve the route prefix based on the authenticated user's role.
+     */
+    protected function routePrefix(?User $user): string
+    {
+        return match ($user?->role) {
+            'admin' => 'admin',
+            'penulis' => 'penulis',
+            default => 'staff',
+        };
+    }
+
+    /**
+     * Determine whether the user is an admin or staff reviewer.
+     */
+    protected function isReviewer(?User $user): bool
+    {
+        return in_array($user?->role, ['admin', 'staff'], true);
+    }
+
+    /**
      * Display a listing of the news entries.
      */
     public function index(Request $request): View
     {
+        $user = $request->user();
         $search = trim((string) $request->query('search', ''));
         $status = (string) $request->query('status', 'all');
 
-        $beritas = Berita::query()
+        $query = Berita::query();
+
+        if ($user?->role === 'penulis') {
+            $query->where('user_id', $user->id);
+        } elseif ($this->isReviewer($user)) {
+            $query->whereIn('status', ['review', 'published', 'archived']);
+        }
+
+        $beritas = $query
             ->when($search !== '', function (Builder $query) use ($search): void {
-                $query->where(function (Builder $query) use ($search): void {
-                    $query->where('judul', 'like', "%{$search}%")
-                        ->orWhere('slug', 'like', "%{$search}%")
-                        ->orWhere('konten', 'like', "%{$search}%");
-                });
+                $pattern = '%'.mb_strtolower($search).'%';
+                $query->whereRaw('LOWER(judul) LIKE ?', [$pattern]);
             })
-            ->when($status === 'published', fn (Builder $query) => $query->where('is_published', true))
-            ->when($status === 'draft', fn (Builder $query) => $query->where('is_published', false))
+            ->when(
+                in_array($status, ['draft', 'review', 'published', 'archived'], true),
+                fn (Builder $query) => $query->where('status', $status)
+            )
             ->latestPublished()
             ->paginate(10)
             ->withQueryString();
@@ -44,15 +73,22 @@ class BeritaController extends Controller
             'beritas' => $beritas,
             'search' => $search,
             'status' => $status,
+            'routePrefix' => $this->routePrefix($user),
         ]);
     }
 
     /**
      * Show the form for creating a new news entry.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('admin.beritas.create');
+        if ($this->isReviewer($request->user())) {
+            abort(403);
+        }
+
+        return view('admin.beritas.create', [
+            'routePrefix' => $this->routePrefix($request->user()),
+        ]);
     }
 
     /**
@@ -60,6 +96,12 @@ class BeritaController extends Controller
      */
     public function store(BeritaRequest $request, CloudinaryService $cloudinary): RedirectResponse
     {
+        $user = $request->user();
+
+        if ($this->isReviewer($user)) {
+            abort(403);
+        }
+
         $validated = $request->validated();
         $file = $request->file('thumbnail');
 
@@ -74,15 +116,17 @@ class BeritaController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($validated, $upload): void {
+            DB::transaction(function () use ($user, $validated, $upload): void {
                 Berita::create([
+                    'user_id' => $user?->id,
                     'judul' => $validated['judul'],
                     'slug' => $this->uniqueSlug($validated['slug'] ?? $validated['judul']),
                     'konten' => $validated['konten'],
                     'thumbnail_url' => $upload['secure_url'],
                     'thumbnail_public_id' => $upload['public_id'],
                     'tanggal_terbit' => $validated['tanggal_terbit'] ?? now()->toDateString(),
-                    'is_published' => (bool) $validated['is_published'],
+                    'status' => $validated['status'],
+                    'is_published' => $validated['status'] === 'published',
                 ]);
             });
         } catch (Throwable $e) {
@@ -98,17 +142,24 @@ class BeritaController extends Controller
         }
 
         return redirect()
-            ->route('admin.beritas.index')
+            ->route($this->routePrefix($user).'.beritas.index')
             ->with('status', 'Berita berhasil ditambahkan!');
     }
 
     /**
      * Show the form for editing the specified news entry.
      */
-    public function edit(Berita $berita): View
+    public function edit(Request $request, Berita $berita): View
     {
+        $user = $request->user();
+
+        if ($user?->role === 'penulis' && $berita->user_id !== $user->id) {
+            abort(403);
+        }
+
         return view('admin.beritas.edit', [
             'berita' => $berita,
+            'routePrefix' => $this->routePrefix($user),
         ]);
     }
 
@@ -117,6 +168,12 @@ class BeritaController extends Controller
      */
     public function update(BeritaRequest $request, Berita $berita, CloudinaryService $cloudinary): RedirectResponse
     {
+        $user = $request->user();
+
+        if ($user?->role === 'penulis' && $berita->user_id !== $user->id) {
+            abort(403);
+        }
+
         $validated = $request->validated();
         $previousPublicId = $berita->thumbnail_public_id;
 
@@ -125,7 +182,8 @@ class BeritaController extends Controller
             'slug' => $this->uniqueSlug($validated['slug'] ?? $validated['judul'], $berita),
             'konten' => $validated['konten'],
             'tanggal_terbit' => $validated['tanggal_terbit'] ?? null,
-            'is_published' => (bool) $validated['is_published'],
+            'status' => $validated['status'],
+            'is_published' => $validated['status'] === 'published',
         ];
 
         $newUpload = null;
@@ -165,15 +223,81 @@ class BeritaController extends Controller
         }
 
         return redirect()
-            ->route('admin.beritas.index')
+            ->route($this->routePrefix($user).'.beritas.index')
             ->with('status', 'Berita berhasil diperbarui!');
+    }
+
+    /**
+     * Update the workflow status of the specified news entry based on user role.
+     */
+    public function updateStatus(Request $request, Berita $berita): RedirectResponse
+    {
+        $user = $request->user();
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:draft,review,published,archived'],
+        ]);
+
+        $targetStatus = $validated['status'];
+        $currentStatus = $berita->status ?? ($berita->is_published ? 'published' : 'draft');
+
+        if ($this->isReviewer($user)) {
+            $allowed = ($currentStatus === 'review' && $targetStatus === 'published')
+                || ($currentStatus === 'published' && $targetStatus === 'archived');
+
+            if (! $allowed) {
+                return back()->with('error', 'Perubahan status tidak diizinkan untuk status berita saat ini.');
+            }
+        } elseif ($user?->role === 'penulis') {
+            if ($berita->user_id !== $user->id) {
+                abort(403);
+            }
+
+            if (! in_array($currentStatus, ['draft', 'review'], true) || ! in_array($targetStatus, ['draft', 'review'], true)) {
+                return back()->with('error', 'Penulis hanya dapat mengubah status antara Draft dan Review.');
+            }
+        } else {
+            abort(403);
+        }
+
+        $berita->update([
+            'status' => $targetStatus,
+            'is_published' => $targetStatus === 'published',
+        ]);
+
+        $statusLabel = match ($targetStatus) {
+            'published' => 'diterbitkan (Published)',
+            'archived' => 'diarsipkan (Archived)',
+            'review' => 'diajukan untuk Review',
+            default => 'dikembalikan ke Draft',
+        };
+
+        return back()->with('status', "Status berita berhasil {$statusLabel}!");
     }
 
     /**
      * Remove the specified news entry from storage.
      */
-    public function destroy(Berita $berita, CloudinaryService $cloudinary): RedirectResponse
+    public function destroy(Request $request, Berita $berita, CloudinaryService $cloudinary): RedirectResponse
     {
+        $user = $request->user();
+        $currentStatus = $berita->status ?? ($berita->is_published ? 'published' : 'draft');
+
+        if ($this->isReviewer($user)) {
+            if (! in_array($currentStatus, ['review', 'archived'], true)) {
+                return back()->with('error', 'Admin dan Staff hanya dapat menghapus berita berstatus Review atau Archived.');
+            }
+        } elseif ($user?->role === 'penulis') {
+            if ($berita->user_id !== $user->id) {
+                abort(403);
+            }
+
+            if ($currentStatus !== 'draft') {
+                return back()->with('error', 'Penulis hanya dapat menghapus berita yang berstatus Draft.');
+            }
+        } else {
+            abort(403);
+        }
+
         $beritaId = $berita->getKey();
         $publicId = $berita->thumbnail_public_id;
 
@@ -197,7 +321,7 @@ class BeritaController extends Controller
         }
 
         return redirect()
-            ->route('admin.beritas.index')
+            ->route($this->routePrefix($user).'.beritas.index')
             ->with('status', 'Berita berhasil dihapus!');
     }
 
@@ -206,8 +330,11 @@ class BeritaController extends Controller
      */
     public function togglePublish(Berita $berita): RedirectResponse
     {
+        $nextPublished = ! $berita->is_published;
+
         $berita->update([
-            'is_published' => ! $berita->is_published,
+            'status' => $nextPublished ? 'published' : 'draft',
+            'is_published' => $nextPublished,
         ]);
 
         $statusText = $berita->is_published ? 'diterbitkan' : 'disimpan sebagai draft';

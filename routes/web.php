@@ -5,18 +5,17 @@ use App\Http\Controllers\Admin\BeritaController as AdminBeritaController;
 use App\Http\Controllers\Admin\DivisiController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\HeroBannerController;
-use App\Http\Controllers\Admin\PengurusController;
-use App\Http\Controllers\Admin\GalleryController;
-use App\Http\Controllers\Admin\HeroBannerController;
 use App\Http\Controllers\Admin\OrganizationProfileController;
+use App\Http\Controllers\Admin\PengurusController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\BeritaController;
-use App\Models\Divisi;
+use App\Http\Controllers\KegiatanController;
 use App\Models\HeroBanner;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/tentang', 'tentang')->name('tentang');
 Route::view('/kegiatan', 'kegiatan')->name('kegiatan');
+Route::get('/kegiatan/{activity:slug}', [KegiatanController::class, 'show'])->name('kegiatan.show');
 
 Route::get('/berita', [BeritaController::class, 'index'])->name('berita.index');
 Route::get('/berita/{berita:slug}', [BeritaController::class, 'show'])->name('berita.show');
@@ -55,11 +54,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->parameters(['hero-banners' => 'heroBanner'])
             ->except(['show']);
 
-        Route::patch('activities/{activity}/toggle', [ActivityController::class, 'toggleActive'])
-            ->name('activities.toggle');
+        Route::patch('activities/{activity}/status', [ActivityController::class, 'updateStatus'])
+            ->whereNumber('activity')
+            ->name('activities.status');
         Route::resource('activities', ActivityController::class)
             ->parameters(['activities' => 'activity'])
-            ->except(['show']);
+            ->whereNumber('activity')
+            ->only(['index', 'destroy']);
 
         Route::patch('galleries/{gallery}/toggle', [GalleryController::class, 'toggleActive'])
             ->name('galleries.toggle');
@@ -67,10 +68,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->parameters(['galleries' => 'gallery'])
             ->except(['show']);
 
-        Route::patch('beritas/{berita}/toggle', [AdminBeritaController::class, 'togglePublish'])
-            ->name('beritas.toggle');
+        Route::patch('beritas/{berita}/status', [AdminBeritaController::class, 'updateStatus'])
+            ->whereNumber('berita')
+            ->name('beritas.status');
         Route::resource('beritas', AdminBeritaController::class)
             ->parameters(['beritas' => 'berita'])
+            ->whereNumber('berita')
+            ->only(['index', 'destroy']);
+
+        Route::patch('divisi/{divisi}/toggle', [DivisiController::class, 'toggleActive'])
+            ->name('divisi.toggle');
+        Route::resource('divisi', DivisiController::class)
+            ->parameters(['divisi' => 'divisi'])
+            ->except(['show']);
+
+        Route::patch('pengurus/{pengurus}/toggle', [PengurusController::class, 'toggleActive'])
+            ->name('pengurus.toggle');
+        Route::resource('pengurus', PengurusController::class)
+            ->parameters(['pengurus' => 'pengurus'])
             ->except(['show']);
     });
 
@@ -83,26 +98,58 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->parameters(['hero-banners' => 'heroBanner'])
             ->except(['show']);
 
-        Route::patch('activities/{activity}/toggle', [ActivityController::class, 'toggleActive'])
-            ->name('activities.toggle');
+        Route::patch('activities/{activity}/status', [ActivityController::class, 'updateStatus'])
+            ->whereNumber('activity')
+            ->name('activities.status');
         Route::resource('activities', ActivityController::class)
             ->parameters(['activities' => 'activity'])
-            ->except(['show']);
+            ->whereNumber('activity')
+            ->only(['index', 'destroy']);
         Route::patch('galleries/{gallery}/toggle', [GalleryController::class, 'toggleActive'])
             ->name('galleries.toggle');
         Route::resource('galleries', GalleryController::class)
             ->parameters(['galleries' => 'gallery'])
             ->except(['show']);
-        Route::patch('beritas/{berita}/toggle', [AdminBeritaController::class, 'togglePublish'])
-            ->name('beritas.toggle');
+        Route::patch('beritas/{berita}/status', [AdminBeritaController::class, 'updateStatus'])
+            ->whereNumber('berita')
+            ->name('beritas.status');
         Route::resource('beritas', AdminBeritaController::class)
             ->parameters(['beritas' => 'berita'])
-            ->except(['show']);
+            ->whereNumber('berita')
+            ->only(['index', 'destroy']);
 
         Route::get('organization-profile', [OrganizationProfileController::class, 'edit'])
             ->name('organization-profile.edit');
         Route::put('organization-profile', [OrganizationProfileController::class, 'update'])
             ->name('organization-profile.update');
+
+        Route::patch('divisi/{divisi}/toggle', [DivisiController::class, 'toggleActive'])
+            ->name('divisi.toggle');
+        Route::resource('divisi', DivisiController::class)
+            ->parameters(['divisi' => 'divisi'])
+            ->except(['show']);
+
+        Route::patch('pengurus/{pengurus}/toggle', [PengurusController::class, 'toggleActive'])
+            ->name('pengurus.toggle');
+        Route::resource('pengurus', PengurusController::class)
+            ->parameters(['pengurus' => 'pengurus'])
+            ->except(['show']);
+    });
+
+    Route::prefix('penulis')->name('penulis.')->middleware('role:penulis')->group(function () {
+        Route::view('dashboard', 'dashboard')->name('dashboard');
+
+        Route::patch('activities/{activity}/status', [ActivityController::class, 'updateStatus'])
+            ->name('activities.status');
+        Route::resource('activities', ActivityController::class)
+            ->parameters(['activities' => 'activity'])
+            ->except(['show']);
+
+        Route::patch('beritas/{berita}/status', [AdminBeritaController::class, 'updateStatus'])
+            ->name('beritas.status');
+        Route::resource('beritas', AdminBeritaController::class)
+            ->parameters(['beritas' => 'berita'])
+            ->except(['show']);
     });
 });
 

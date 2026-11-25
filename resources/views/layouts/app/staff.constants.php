@@ -17,7 +17,7 @@ return [
         'icon' => 'calendar-days',
         'route' => 'admin.activities.index',
         'current' => 'admin.activities.*',
-        'title' => 'Kelola Kegiatan',
+        'title' => 'Kegiatan',
     ],
     [
         'icon' => 'newspaper',
@@ -29,12 +29,18 @@ return [
         'icon' => 'squares-2x2',
         'route' => 'admin.galleries.index',
         'current' => 'admin.galleries.*',
-        'title' => 'Kelola Galeri',
+        'title' => 'Galeri',
     ],
     [
         'icon' => 'folder-open',
-        'route' => 'admin.hero-banners.index',
-        'current' => 'admin.divisi.*',
+        'route' => 'staff.divisi.index',
+        'current' => 'staff.divisi.*',
         'title' => 'Divisi',
+    ],
+    [
+        'icon' => 'user-group',
+        'route' => 'staff.pengurus.index',
+        'current' => 'staff.pengurus.*',
+        'title' => 'Pengurus',
     ],
 ];

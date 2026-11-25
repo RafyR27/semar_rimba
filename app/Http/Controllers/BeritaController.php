@@ -23,11 +23,22 @@ class BeritaController extends Controller
     }
 
     /**
-     * Display a single published news entry.
+     * Display a single published news entry or authorized preview.
      */
     public function show(Berita $berita): View
     {
-        abort_unless($berita->is_published, 404);
+        $status = $berita->status ?? ($berita->is_published ? 'published' : 'draft');
+        $user = auth()->user();
+
+        $canView = match (true) {
+            $status === 'published' || $berita->is_published => true,
+            $user === null => false,
+            in_array($user->role, ['admin', 'staff'], true) => in_array($status, ['review', 'archived'], true),
+            $user->role === 'penulis' => $berita->user_id === $user->id && in_array($status, ['draft', 'review', 'archived'], true),
+            default => false,
+        };
+
+        abort_unless($canView, 404);
 
         $lainnya = Berita::query()
             ->published()
@@ -38,6 +49,7 @@ class BeritaController extends Controller
 
         return view('berita.show', [
             'berita' => $berita,
+            'beritaStatus' => $status,
             'lainnya' => $lainnya,
         ]);
     }

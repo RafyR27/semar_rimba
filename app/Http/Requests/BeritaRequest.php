@@ -20,9 +20,19 @@ class BeritaRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        $status = $this->input('status');
+        if (! is_string($status) || $status === '') {
+            if ($this->user()?->role === 'penulis') {
+                $status = 'draft';
+            } else {
+                $status = $this->boolean('is_published') ? 'published' : 'draft';
+            }
+        }
+
         $this->merge([
             'slug' => Str::slug((string) ($this->input('slug') ?: $this->input('judul'))),
-            'is_published' => $this->boolean('is_published'),
+            'status' => $status,
+            'is_published' => $status === 'published',
         ]);
     }
 
@@ -37,12 +47,17 @@ class BeritaRequest extends FormRequest
             ? ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:4096']
             : ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:4096'];
 
+        $allowedStatuses = $this->user()?->role === 'penulis'
+            ? 'in:draft,review'
+            : 'in:draft,review,published,archived';
+
         return [
             'judul' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255'],
             'konten' => ['required', 'string'],
             'thumbnail' => $thumbnailRule,
             'tanggal_terbit' => ['nullable', 'date'],
+            'status' => ['required', 'string', $allowedStatuses],
             'is_published' => ['required', 'boolean'],
         ];
     }

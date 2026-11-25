@@ -24,6 +24,15 @@
         </nav>
 
         <div class="max-w-3xl mx-auto mt-10 space-y-8">
+            @php
+                $currentBeritaStatus = $beritaStatus ?? ($berita->status ?? ($berita->is_published ? 'published' : 'draft'));
+            @endphp
+            @if ($currentBeritaStatus !== 'published' && ! $berita->is_published)
+                <div class="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs font-semibold text-amber-800">
+                    Mode Pratinjau — Status berita ini saat ini adalah <span class="uppercase">{{ $currentBeritaStatus }}</span> dan belum tayang untuk publik.
+                </div>
+            @endif
+
             {{-- Headline --}}
             <header class="space-y-4">
                 <span class="text-[11px] font-bold text-gold uppercase tracking-widest">
@@ -43,8 +52,8 @@
             @endif
 
             {{-- Konten --}}
-            <div class="text-base text-stone-700 leading-relaxed whitespace-pre-line space-y-4">
-                {{ $berita->konten }}
+            <div class="tiptap-prose text-base text-stone-700 leading-relaxed space-y-4">
+                {!! $berita->konten !!}
             </div>
 
             {{-- Back Navigation --}}

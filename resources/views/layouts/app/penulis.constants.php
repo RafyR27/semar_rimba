@@ -14,6 +14,6 @@ return [
     [
         'icon' => 'calendar-days',
         'url' => '/penulis/activities',
-        'title' => 'Kelola Kegiatan',
+        'title' => 'Kegiatan',
     ],
 ];

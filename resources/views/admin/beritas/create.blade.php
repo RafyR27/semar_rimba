@@ -1,15 +1,19 @@
+@php
+    $prefix = $routePrefix ?? 'admin';
+    $isPenulis = auth()->user()?->role === 'penulis';
+    $statusOptions = $isPenulis
+        ? ['draft' => 'Draft', 'review' => 'Review']
+        : ['draft' => 'Draft', 'review' => 'Review', 'published' => 'Published', 'archived' => 'Archived'];
+    $defaultStatus = $isPenulis ? 'draft' : 'published';
+@endphp
+
 <x-layouts::app :title="__('Tambah Berita')">
-    <div class="max-w-4xl flex flex-col gap-6">
+    <div class="mx-auto flex w-full max-w-4xl flex-col gap-6">
         {{-- Header & Back Navigation --}}
-        <div class="flex items-center gap-3">
-            <flux:button variant="subtle" icon="arrow-left" href="{{ route('admin.beritas.index') }}" wire:navigate>
-                {{ __('Kembali') }}
-            </flux:button>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <flux:button class="cursor-pointer self-start sm:self-auto shrink-0" variant="subtle" icon="arrow-left" href="{{ route($prefix . '.beritas.index') }}" wire:navigate />
             <div>
                 <flux:heading size="xl" level="1">{{ __('Tambah Berita Baru') }}</flux:heading>
-                <flux:subheading size="sm" class="mt-0.5">
-                    {{ __('Tulis kabar, laporan ekspedisi, atau artikel untuk halaman berita publik.') }}
-                </flux:subheading>
             </div>
         </div>
 
@@ -33,7 +37,14 @@
 
         {{-- Form Card --}}
         <div class="p-6 sm:p-8 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-xs">
-            <form method="POST" action="{{ route('admin.beritas.store') }}" enctype="multipart/form-data" class="space-y-6">
+            <form
+                method="POST"
+                action="{{ route($prefix . '.beritas.store') }}"
+                enctype="multipart/form-data"
+                x-data="{ submitting: false }"
+                @submit="submitting = true"
+                class="space-y-6"
+            >
                 @csrf
 
                 {{-- Judul Berita --}}
@@ -52,36 +63,17 @@
                     />
                 </div>
 
-                {{-- Slug --}}
-                <div class="space-y-2">
-                    <label for="slug" class="block text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                        {{ __('Slug (Opsional)') }}
-                    </label>
-                    <input
-                        type="text"
-                        name="slug"
-                        id="slug"
-                        value="{{ old('slug') }}"
-                        placeholder="Contoh: ekspedisi-argopuro-2026"
-                        class="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
-                    />
-                    <p class="text-xs text-zinc-500">{{ __('Kosongkan untuk dibuat otomatis dari judul berita.') }}</p>
-                </div>
-
                 {{-- Isi Berita --}}
                 <div class="space-y-2">
                     <label for="konten" class="block text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                         {{ __('Isi Berita') }} <span class="text-rose-500">*</span>
                     </label>
-                    <textarea
+                    <x-tiptap-editor
                         name="konten"
                         id="konten"
-                        rows="14"
-                        required
-                        placeholder="Tulis isi berita secara lengkap..."
-                        class="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
-                    >{{ old('konten') }}</textarea>
-                    <p class="text-xs text-zinc-500">{{ __('Baris baru pada isi berita akan dipertahankan saat ditampilkan di halaman publik.') }}</p>
+                        :value="old('konten')"
+                        :required="true"
+                    />
                 </div>
 
                 {{-- Gambar Berita (Cloudinary) --}}
@@ -118,7 +110,7 @@
                 </div>
 
                 {{-- Tanggal & Status Publikasi --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-zinc-200 dark:border-zinc-800">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
                     <div class="space-y-2">
                         <label for="tanggal_terbit" class="block text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                             {{ __('Tanggal Publikasi') }}
@@ -133,30 +125,50 @@
                         <p class="text-xs text-zinc-500">{{ __('Berita terbaru ditampilkan lebih dahulu di halaman publik.') }}</p>
                     </div>
 
-                    <div class="flex items-center pt-8">
-                        <label class="relative flex items-center gap-3 cursor-pointer select-none">
-                            <input
-                                type="checkbox"
-                                name="is_published"
-                                value="1"
-                                {{ old('is_published', '1') === '1' ? 'checked' : '' }}
-                                class="size-4.5 rounded text-amber-500 border-zinc-300 dark:border-zinc-700 focus:ring-amber-500"
-                            />
-                            <div>
-                                <span class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{{ __('Terbitkan Berita') }}</span>
-                                <p class="text-xs text-zinc-500">{{ __('Jika tidak dicentang, berita disimpan sebagai draft dan tidak tampil untuk pengunjung.') }}</p>
-                            </div>
+                    <div class="space-y-2">
+                        <label for="status" class="block text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                            {{ __('Status Publikasi') }} <span class="text-rose-500">*</span>
                         </label>
+                        <select
+                            name="status"
+                            id="status"
+                            required
+                            class="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                        >
+                            @foreach ($statusOptions as $value => $label)
+                                <option value="{{ $value }}" @selected(old('status', $defaultStatus) === $value)>{{ __($label) }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-zinc-500">
+                            {{ $isPenulis
+                                ? __('Pilih Draft untuk menyimpan sementara atau Review untuk diajukan ke Admin/Staff.')
+                                : __('Hanya berita berstatus Published yang tampil di halaman publik.') }}
+                        </p>
                     </div>
                 </div>
 
                 {{-- Action Buttons --}}
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
-                    <flux:button variant="subtle" href="{{ route('admin.beritas.index') }}" wire:navigate>
+                <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+                    <flux:button
+                        class="cursor-pointer w-full sm:w-auto justify-center"
+                        variant="subtle"
+                        href="{{ route($prefix . '.beritas.index') }}"
+                        wire:navigate
+                        x-bind:class="{ 'pointer-events-none opacity-60': submitting }"
+                    >
                         {{ __('Batal') }}
                     </flux:button>
-                    <flux:button variant="primary" type="submit" icon="check">
-                        {{ __('Simpan Berita') }}
+                    <flux:button
+                        class="cursor-pointer w-full sm:w-auto justify-center"
+                        variant="primary"
+                        type="submit"
+                        x-bind:disabled="submitting"
+                    >
+                        <span class="inline-flex items-center justify-center gap-2">
+                            <flux:icon.arrow-path x-show="submitting" x-cloak class="size-4 animate-spin" />
+                            <flux:icon.check x-show="!submitting" class="size-4" />
+                            <span>{{ __('Simpan Berita') }}</span>
+                        </span>
                     </flux:button>
                 </div>
             </form>

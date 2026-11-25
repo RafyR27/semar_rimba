@@ -10,23 +10,23 @@
             </div>
 
             <flux:modal.trigger name="add-user-modal">
-                <flux:button variant="primary" icon="plus" type="button">
+                <flux:button class="cursor-pointer" variant="primary" icon="plus" type="button">
                     {{ __('Tambah Pengguna') }}
                 </flux:button>
             </flux:modal.trigger>
         </div>
 
-        {{-- Flash Messages --}}
-        @if (session('status'))
-            <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-sm flex items-center justify-between">
-                <span>{{ session('status') }}</span>
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-400 text-sm flex items-center justify-between">
-                <span>{{ session('error') }}</span>
-            </div>
+        {{-- Toast Flash Messages --}}
+        @if (session('status') || session('error'))
+            @php
+                $toastVariant = session('error') ? 'danger' : 'success';
+                $toastText = session('error') ?? session('status');
+            @endphp
+            <div
+                x-data
+                x-init="$nextTick(() => Flux.toast({ variant: @js($toastVariant), text: @js($toastText) }))"
+                class="hidden"
+            ></div>
         @endif
 
         {{-- Search & Filter Bar --}}
@@ -47,7 +47,7 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-                <flux:button type="submit" variant="filled" x-bind:disabled="submitting">
+                <flux:button class="cursor-pointer" type="submit" variant="filled" x-bind:disabled="submitting">
                     <flux:icon.arrow-path x-show="submitting" x-cloak class="size-4 animate-spin" />
                     <span>{{ __('Cari') }}</span>
                 </flux:button>
@@ -70,7 +70,7 @@
                 </div>
 
                 @if ($search !== '' || $role !== '' || $status !== '')
-                    <flux:button
+                    <flux:button class="cursor-pointer"
                         variant="subtle"
                         href="{{ route('admin.users-management.index') }}"
                         wire:navigate
@@ -142,7 +142,7 @@
                                     </td>
                                     <td class="py-4 px-4 text-right">
                                         <flux:dropdown position="bottom" align="end">
-                                            <flux:button
+                                            <flux:button class="cursor-pointer"
                                                 variant="subtle"
                                                 size="sm"
                                                 icon="ellipsis-vertical"
@@ -268,10 +268,10 @@
 
             <div class="flex justify-end gap-2 pt-2">
                 <flux:modal.close>
-                    <flux:button variant="filled" type="button" x-bind:disabled="submitting">{{ __('Batal') }}</flux:button>
+                    <flux:button class="cursor-pointer" variant="filled" type="button" x-bind:disabled="submitting">{{ __('Batal') }}</flux:button>
                 </flux:modal.close>
 
-                <flux:button variant="primary" type="submit" x-bind:disabled="submitting">
+                <flux:button class="cursor-pointer" variant="primary" type="submit" x-bind:disabled="submitting">
                     <flux:icon.arrow-path x-show="submitting" x-cloak class="size-4 animate-spin" />
                     <span>{{ __('Simpan') }}</span>
                 </flux:button>
@@ -344,10 +344,10 @@
 
                 <div class="flex justify-end gap-2 pt-2">
                     <flux:modal.close>
-                        <flux:button variant="filled" type="button" x-bind:disabled="submitting">{{ __('Batal') }}</flux:button>
+                        <flux:button class="cursor-pointer" variant="filled" type="button" x-bind:disabled="submitting">{{ __('Batal') }}</flux:button>
                     </flux:modal.close>
 
-                    <flux:button variant="primary" type="submit" x-bind:disabled="submitting">
+                    <flux:button class="cursor-pointer" variant="primary" type="submit" x-bind:disabled="submitting">
                         <flux:icon.arrow-path x-show="submitting" x-cloak class="size-4 animate-spin" />
                         <span>{{ __('Simpan Perubahan') }}</span>
                     </flux:button>
@@ -380,10 +380,10 @@
 
                 <div class="flex justify-end gap-2 pt-2">
                     <flux:modal.close>
-                        <flux:button variant="filled" type="button" x-bind:disabled="submitting">{{ __('Batal') }}</flux:button>
+                        <flux:button class="cursor-pointer" variant="filled" type="button" x-bind:disabled="submitting">{{ __('Batal') }}</flux:button>
                     </flux:modal.close>
 
-                    <flux:button variant="{{ $user->status ? 'danger' : 'primary' }}" type="submit" x-bind:disabled="submitting">
+                    <flux:button class="cursor-pointer" variant="{{ $user->status ? 'danger' : 'primary' }}" type="submit" x-bind:disabled="submitting">
                         <flux:icon.arrow-path x-show="submitting" x-cloak class="size-4 animate-spin" />
                         <span>{{ $user->status ? __('Nonaktifkan') : __('Aktifkan') }}</span>
                     </flux:button>

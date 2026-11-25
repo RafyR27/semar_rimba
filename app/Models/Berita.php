@@ -8,16 +8,19 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
+ * @property int|null $user_id
  * @property string $judul
  * @property string $slug
  * @property string $konten
  * @property string|null $thumbnail_url
  * @property string|null $thumbnail_public_id
  * @property CarbonInterface|null $tanggal_terbit
+ * @property string $status
  * @property bool $is_published
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -26,12 +29,14 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static> latestPublished()
  */
 #[Fillable([
+    'user_id',
     'judul',
     'slug',
     'konten',
     'thumbnail_url',
     'thumbnail_public_id',
     'tanggal_terbit',
+    'status',
     'is_published',
 ])]
 class Berita extends Model
@@ -83,5 +88,15 @@ class Berita extends Model
     public function publicationDate(): ?CarbonInterface
     {
         return $this->tanggal_terbit ?? $this->created_at;
+    }
+
+    /**
+     * Get the user that wrote this news entry.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

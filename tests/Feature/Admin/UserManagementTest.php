@@ -249,3 +249,12 @@ test('active users are displayed before inactive users in the table', function (
         ->assertOk()
         ->assertSeeInOrder([$active->name, $inactive->name]);
 });
+
+test('success flash message triggers flux toast notification on user management page', function () {
+    $this->actingAs($this->admin)
+        ->withSession(['status' => 'Pengguna berhasil ditambahkan.'])
+        ->get(route('admin.users-management.index'))
+        ->assertOk()
+        ->assertSee('Flux.toast', false)
+        ->assertSee('Pengguna berhasil ditambahkan.');
+});
