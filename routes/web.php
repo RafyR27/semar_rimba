@@ -2,11 +2,16 @@
 
 use App\Http\Controllers\Admin\ActivityController;
 use App\Http\Controllers\Admin\BeritaController as AdminBeritaController;
+use App\Http\Controllers\Admin\DivisiController;
+use App\Http\Controllers\Admin\GalleryController;
+use App\Http\Controllers\Admin\HeroBannerController;
+use App\Http\Controllers\Admin\PengurusController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\HeroBannerController;
 use App\Http\Controllers\Admin\OrganizationProfileController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\BeritaController;
+use App\Models\Divisi;
 use App\Models\HeroBanner;
 use Illuminate\Support\Facades\Route;
 
@@ -17,10 +22,8 @@ Route::get('/berita', [BeritaController::class, 'index'])->name('berita.index');
 Route::get('/berita/{berita:slug}', [BeritaController::class, 'show'])->name('berita.show');
 
 Route::get('/', function () {
-    $heroBanners = HeroBanner::active()->ordered()->get();
-
     return view('welcome', [
-        'heroBanners' => $heroBanners,
+        'heroBanners' => HeroBanner::active()->ordered()->get(),
     ]);
 })->name('home');
 
