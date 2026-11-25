@@ -12,10 +12,11 @@
                 dan penguasaan teknik dasar navigasi kompas-peta, bivak hujan tropis, manajemen perbekalan, serta
                 survival lapangan.
             </p>
-            <a href="{{ route('kegiatan') }}" class="mt-5 flex item-center gap-2 text-gold underline-offset-3 hover:underline">Kegiatan lainnya 
-                <svg xmlns="http://www.w3.org/2000/svg" width="20"
-                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right preview-icon">
+            <a href="{{ route('kegiatan') }}"
+                class="mt-5 flex item-center gap-2 text-gold underline-offset-3 hover:underline">Kegiatan lainnya
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-arrow-right preview-icon">
                     <path d="M5 12h14" />
                     <path d="m12 5 7 7-7 7" />
                 </svg></a>
