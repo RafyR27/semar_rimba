@@ -53,7 +53,7 @@
                 <flux:button
                     variant="primary"
                     type="submit"
-                    class="w-full"
+                    class="cursor-pointer w-full"
                     data-test="login-button"
                     x-bind:disabled="submitting"
                 >

@@ -100,14 +100,8 @@
                             </p>
                         </div>
                     </article>
-                @endforeach
+                </div>
             </div>
-        @else
-            <p class="rounded-xl border border-stone-200 bg-white p-6 text-sm text-stone-600">Belum ada divisi aktif yang ditampilkan.</p>
-        @endif
-
-        <div class="mt-8">
-            <a href="#kontak" class="inline-flex items-center gap-2 text-sm font-black text-stone-900 hover:text-amber-700 transition-colors">Konsultasi &amp; Gabung Divisi <span aria-hidden="true">↗</span></a>
         </div>
     </div>
 </section>

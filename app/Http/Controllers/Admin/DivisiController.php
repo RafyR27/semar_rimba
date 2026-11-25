@@ -29,6 +29,11 @@ class DivisiController extends Controller
         return view('admin.divisi.create');
     }
 
+    protected function routePrefix(Request $request): string
+    {
+        return $request->user()?->role === 'staff' ? 'staff' : 'admin';
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -39,7 +44,7 @@ class DivisiController extends Controller
 
         Divisi::create($validated);
 
-        return redirect()->route('admin.divisi.index')->with('status', 'Divisi berhasil ditambahkan.');
+        return redirect()->route($this->routePrefix($request).'.divisi.index')->with('status', 'Divisi berhasil ditambahkan.');
     }
 
     public function edit(Divisi $divisi): View
@@ -57,14 +62,14 @@ class DivisiController extends Controller
 
         $divisi->update($validated);
 
-        return redirect()->route('admin.divisi.index')->with('status', 'Divisi berhasil diperbarui.');
+        return redirect()->route($this->routePrefix($request).'.divisi.index')->with('status', 'Divisi berhasil diperbarui.');
     }
 
-    public function destroy(Divisi $divisi): RedirectResponse
+    public function destroy(Request $request, Divisi $divisi): RedirectResponse
     {
         $divisi->delete();
 
-        return redirect()->route('admin.divisi.index')->with('status', 'Divisi berhasil dihapus. Data pengurus tetap tersimpan, tetapi tidak lagi terhubung ke divisi tersebut.');
+        return redirect()->route($this->routePrefix($request).'.divisi.index')->with('status', 'Divisi berhasil dihapus. Data pengurus tetap tersimpan, tetapi tidak lagi terhubung ke divisi tersebut.');
     }
 
     public function toggleActive(Divisi $divisi): RedirectResponse

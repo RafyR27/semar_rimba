@@ -103,4 +103,53 @@ select:focus[data-flux-control] {
     display: none !important;
 }
 
+.tiptap-prose p {
+    margin-bottom: 0.625rem;
+    line-height: 1.65;
+}
+
+.tiptap-prose p:last-child {
+    margin-bottom: 0;
+}
+
+.tiptap-prose h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.tiptap-prose h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 0.875rem;
+    margin-bottom: 0.4rem;
+    line-height: 1.35;
+}
+
+.tiptap-prose ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 0.625rem;
+}
+
+.tiptap-prose ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+    margin-bottom: 0.625rem;
+}
+
+.tiptap-prose li {
+    margin-bottom: 0.25rem;
+}
+
+.tiptap-prose blockquote {
+    border-left: 3px solid #f59e0b;
+    padding-left: 0.875rem;
+    margin: 0.75rem 0;
+    font-style: italic;
+    opacity: 0.85;
+}
+
 

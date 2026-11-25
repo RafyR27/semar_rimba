@@ -1,10 +1,8 @@
 <x-layouts::app :title="__('Tambah Hero Banner')">
-    <div class="max-w-4xl flex flex-col gap-6">
+    <div class="mx-auto flex w-full max-w-5xl flex-col gap-6">
         {{-- Header & Back Navigation --}}
-        <div class="flex items-center gap-3">
-            <flux:button variant="subtle" icon="arrow-left" href="{{ route('admin.hero-banners.index') }}" wire:navigate>
-                {{ __('Kembali') }}
-            </flux:button>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <flux:button class="cursor-pointer self-start sm:self-auto shrink-0" variant="subtle" icon="arrow-left" href="{{ route('admin.hero-banners.index') }}" wire:navigate />
             <div>
                 <flux:heading size="xl" level="1">{{ __('Tambah Hero Banner Baru') }}</flux:heading>
                 <flux:subheading size="sm" class="mt-0.5">
@@ -33,7 +31,14 @@
 
         {{-- Form Card --}}
         <div class="p-6 sm:p-8 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-xs">
-            <form method="POST" action="{{ route('admin.hero-banners.store') }}" enctype="multipart/form-data" class="space-y-6">
+            <form
+                method="POST"
+                action="{{ route('admin.hero-banners.store') }}"
+                enctype="multipart/form-data"
+                x-data="{ submitting: false }"
+                @submit="submitting = true"
+                class="space-y-6"
+            >
                 @csrf
 
                 {{-- Judul Banner --}}
@@ -148,7 +153,7 @@
                 </div>
 
                 {{-- Status & Order Setting (Two columns) --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-zinc-200 dark:border-zinc-800">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
                     <div class="space-y-2">
                         <label for="order" class="block text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                             {{ __('Urutan Tampil') }}
@@ -164,14 +169,14 @@
                         <p class="text-xs text-zinc-500">{{ __('Angka kecil ditampilkan lebih dahulu.') }}</p>
                     </div>
 
-                    <div class="flex items-center pt-8">
-                        <label class="relative flex items-center gap-3 cursor-pointer select-none">
+                    <div class="flex items-start sm:items-center pt-1 sm:pt-7">
+                        <label class="relative flex items-start sm:items-center gap-3 cursor-pointer select-none">
                             <input
                                 type="checkbox"
                                 name="is_active"
                                 value="1"
                                 {{ old('is_active', '1') === '1' ? 'checked' : '' }}
-                                class="size-4.5 rounded text-amber-500 border-zinc-300 dark:border-zinc-700 focus:ring-amber-500"
+                                class="mt-0.5 sm:mt-0 size-4.5 rounded text-amber-500 border-zinc-300 dark:border-zinc-700 focus:ring-amber-500"
                             />
                             <div>
                                 <span class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{{ __('Aktifkan Banner') }}</span>
@@ -182,12 +187,27 @@
                 </div>
 
                 {{-- Action Buttons --}}
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
-                    <flux:button variant="subtle" href="{{ route('admin.hero-banners.index') }}" wire:navigate>
+                <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+                    <flux:button
+                        class="cursor-pointer w-full sm:w-auto justify-center"
+                        variant="subtle"
+                        href="{{ route('admin.hero-banners.index') }}"
+                        wire:navigate
+                        x-bind:class="{ 'pointer-events-none opacity-60': submitting }"
+                    >
                         {{ __('Batal') }}
                     </flux:button>
-                    <flux:button variant="primary" type="submit" icon="check">
-                        {{ __('Simpan Banner') }}
+                    <flux:button
+                        class="cursor-pointer w-full sm:w-auto justify-center"
+                        variant="primary"
+                        type="submit"
+                        x-bind:disabled="submitting"
+                    >
+                        <span class="inline-flex items-center justify-center gap-2">
+                            <flux:icon.arrow-path x-show="submitting" x-cloak class="size-4 animate-spin" />
+                            <flux:icon.check x-show="!submitting" class="size-4" />
+                            <span>{{ __('Simpan Banner') }}</span>
+                        </span>
                     </flux:button>
                 </div>
             </form>

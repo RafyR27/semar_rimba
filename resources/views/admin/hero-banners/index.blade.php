@@ -9,22 +9,22 @@
                 </flux:subheading>
             </div>
 
-            <flux:button variant="primary" icon="plus" href="{{ route('admin.hero-banners.create') }}" wire:navigate>
+            <flux:button class="cursor-pointer" variant="primary" icon="plus" href="{{ route('admin.hero-banners.create') }}" wire:navigate>
                 {{ __('Tambah Banner') }}
             </flux:button>
         </div>
 
-        {{-- Flash Messages --}}
-        @if (session('status'))
-            <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-sm flex items-center justify-between">
-                <span>{{ session('status') }}</span>
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-400 text-sm flex items-center justify-between">
-                <span>{{ session('error') }}</span>
-            </div>
+        {{-- Toast Flash Messages --}}
+        @if (session('status') || session('error'))
+            @php
+                $toastVariant = session('error') ? 'danger' : 'success';
+                $toastText = session('error') ?? session('status');
+            @endphp
+            <div
+                x-data
+                x-init="$nextTick(() => Flux.toast({ variant: @js($toastVariant), text: @js($toastText) }))"
+                class="hidden"
+            ></div>
         @endif
 
         {{-- Banners Table / List --}}
@@ -41,7 +41,7 @@
                         {{ __('Belum ada data banner di database. Halaman utama saat ini menggunakan gambar default fallback. Klik tombol di bawah untuk menambahkan banner pertama.') }}
                     </flux:text>
                     <div class="mt-6">
-                        <flux:button variant="primary" icon="plus" href="{{ route('admin.hero-banners.create') }}" wire:navigate>
+                        <flux:button class="cursor-pointer" variant="primary" icon="plus" href="{{ route('admin.hero-banners.create') }}" wire:navigate>
                             {{ __('Tambah Banner Sekarang') }}
                         </flux:button>
                     </div>
@@ -53,10 +53,12 @@
                             <tr>
                                 <th scope="col" class="py-3 px-4 w-20">{{ __('Urutan') }}</th>
                                 <th scope="col" class="py-3 px-4 w-36">{{ __('Gambar') }}</th>
-                                <th scope="col" class="py-3 px-4">{{ __('Judul & Narasi') }}</th>
-                                <th scope="col" class="py-3 px-4 w-40">{{ __('Tombol (CTA)') }}</th>
+                                <th scope="col" class="py-3 px-4 min-w-44">{{ __('Judul') }}</th>
+                                <th scope="col" class="py-3 px-4 min-w-44">{{ __('Sub Judul') }}</th>
+                                <th scope="col" class="py-3 px-4 min-w-56">{{ __('Deskripsi') }}</th>
+                                <th scope="col" class="py-3 px-4 w-44">{{ __('Tombol (CTA)') }}</th>
                                 <th scope="col" class="py-3 px-4 w-28 text-center">{{ __('Status') }}</th>
-                                <th scope="col" class="py-3 px-4 w-36 text-right">{{ __('Aksi') }}</th>
+                                <th scope="col" class="py-3 px-4 w-24 text-right">{{ __('Aksi') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -79,20 +81,28 @@
                                         </div>
                                     </td>
 
-                                    {{-- Title & Subtitle --}}
-                                    <td class="py-4 px-4">
-                                        <div class="font-bold text-zinc-900 dark:text-white leading-snug">
-                                            {{ $banner->title }}
-                                        </div>
+                                    {{-- Title --}}
+                                    <td class="py-4 px-4 font-bold text-zinc-900 dark:text-white leading-snug">
+                                        {{ $banner->title }}
+                                    </td>
+
+                                    {{-- Subtitle --}}
+                                    <td class="py-4 px-4 text-xs">
                                         @if ($banner->subtitle)
-                                            <div class="text-xs text-amber-600 dark:text-amber-400 font-medium mt-0.5">
+                                            <span class="text-amber-600 dark:text-amber-400 font-medium">
                                                 {{ $banner->subtitle }}
-                                            </div>
+                                            </span>
+                                        @else
+                                            <span class="text-zinc-400 italic">-</span>
                                         @endif
+                                    </td>
+
+                                    {{-- Description --}}
+                                    <td class="py-4 px-4 text-xs text-zinc-500 dark:text-zinc-400">
                                         @if ($banner->description)
-                                            <div class="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-1 mt-1 max-w-md">
-                                                {{ $banner->description }}
-                                            </div>
+                                            <p class="line-clamp-2 max-w-xs">{{ $banner->description }}</p>
+                                        @else
+                                            <span class="text-zinc-400 italic">-</span>
                                         @endif
                                     </td>
 
@@ -124,32 +134,30 @@
 
                                     {{-- Actions --}}
                                     <td class="py-4 px-4 text-right">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <flux:button
-                                                size="sm"
+                                        <flux:dropdown position="bottom" align="end">
+                                            <flux:button class="cursor-pointer"
                                                 variant="subtle"
-                                                icon="pencil-square"
-                                                href="{{ route('admin.hero-banners.edit', $banner) }}"
-                                                wire:navigate
-                                                title="{{ __('Edit Banner') }}"
+                                                size="sm"
+                                                icon="ellipsis-vertical"
+                                                aria-label="{{ __('Aksi') }}"
                                             />
 
-                                            <form
-                                                method="POST"
-                                                action="{{ route('admin.hero-banners.destroy', $banner) }}"
-                                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus banner ini? Gambar di Cloudinary juga akan dihapus.');"
-                                            >
-                                                @csrf
-                                                @method('DELETE')
-                                                <flux:button
-                                                    size="sm"
-                                                    variant="danger"
-                                                    icon="trash"
-                                                    type="submit"
-                                                    title="{{ __('Hapus Banner') }}"
-                                                />
-                                            </form>
-                                        </div>
+                                            <flux:menu>
+                                                <flux:menu.item
+                                                    icon="pencil-square"
+                                                    href="{{ route('admin.hero-banners.edit', $banner) }}"
+                                                    wire:navigate
+                                                >
+                                                    {{ __('Edit') }}
+                                                </flux:menu.item>
+
+                                                <flux:modal.trigger name="delete-banner-modal-{{ $banner->id }}">
+                                                    <flux:menu.item icon="trash" variant="danger">
+                                                        {{ __('Hapus') }}
+                                                    </flux:menu.item>
+                                                </flux:modal.trigger>
+                                            </flux:menu>
+                                        </flux:dropdown>
                                     </td>
                                 </tr>
                             @endforeach
@@ -165,4 +173,40 @@
             @endif
         </div>
     </div>
+
+    {{-- Modal Konfirmasi Hapus Banner --}}
+    @foreach ($banners as $banner)
+        <flux:modal name="delete-banner-modal-{{ $banner->id }}" focusable class="max-w-md w-full">
+            <form
+                method="POST"
+                action="{{ route('admin.hero-banners.destroy', $banner) }}"
+                x-data="{ submitting: false }"
+                @submit="submitting = true"
+                class="space-y-5"
+            >
+                @csrf
+                @method('DELETE')
+
+                <div>
+                    <flux:heading size="lg">
+                        {{ __('Hapus Hero Banner') }}
+                    </flux:heading>
+                    <flux:subheading class="mt-1">
+                        {{ __('Apakah Anda yakin ingin menghapus banner :title? Gambar di Cloudinary juga akan dihapus secara permanen.', ['title' => $banner->title]) }}
+                    </flux:subheading>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <flux:modal.close>
+                        <flux:button class="cursor-pointer" variant="filled" type="button" x-bind:disabled="submitting">{{ __('Batal') }}</flux:button>
+                    </flux:modal.close>
+
+                    <flux:button class="cursor-pointer" variant="danger" type="submit" x-bind:disabled="submitting">
+                        <flux:icon.arrow-path x-show="submitting" x-cloak class="size-4 animate-spin" />
+                        <span>{{ __('Hapus') }}</span>
+                    </flux:button>
+                </div>
+            </form>
+        </flux:modal>
+    @endforeach
 </x-layouts::app>

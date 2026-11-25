@@ -283,7 +283,7 @@
 
             {{-- Action Buttons --}}
             <div class="flex items-center justify-end gap-3">
-                <flux:button variant="primary" type="submit" icon="check">
+                <flux:button class="cursor-pointer" variant="primary" type="submit" icon="check">
                     {{ __('Simpan Pengaturan') }}
                 </flux:button>
             </div>

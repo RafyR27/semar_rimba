@@ -61,7 +61,7 @@ new #[Title('Profile settings')] class extends Component {
 
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-end">
-                    <flux:button variant="primary" type="submit" class="w-full" data-test="update-profile-button">
+                    <flux:button variant="primary" type="submit" class="cursor-pointer w-full" data-test="update-profile-button">
                         {{ __('Save') }}
                     </flux:button>
                 </div>

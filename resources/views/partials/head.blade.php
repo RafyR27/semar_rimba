@@ -1,8 +1,13 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+@php
+    $isPanel = auth()->check() && request()->routeIs('admin.*', 'staff.*', 'penulis.*', 'dashboard', 'profile.*', 'user-password.*', 'appearance.*', 'two-factor.*');
+    $titleSuffix = $isPanel ? ucfirst(auth()->user()->role) : config('app.name', 'Semar Rimba');
+@endphp
+
 <title>
-    {{ filled($title ?? null) ? $title . config('app.name', 'Laravel') : config('app.name', 'Laravel') }}
+    {{ filled($title ?? null) ? $title . ' | ' . $titleSuffix : $titleSuffix }}
 </title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">

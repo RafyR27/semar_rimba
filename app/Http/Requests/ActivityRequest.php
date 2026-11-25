@@ -19,8 +19,18 @@ class ActivityRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        $status = $this->input('status');
+        if (! is_string($status) || $status === '') {
+            if ($this->user()?->role === 'penulis') {
+                $status = 'draft';
+            } else {
+                $status = $this->boolean('is_active') ? 'published' : 'draft';
+            }
+        }
+
         $this->merge([
-            'is_active' => $this->boolean('is_active'),
+            'status' => $status,
+            'is_active' => $status === 'published',
             'order' => $this->filled('order') ? (int) $this->input('order') : 0,
         ]);
     }
@@ -36,6 +46,10 @@ class ActivityRequest extends FormRequest
             ? ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:4096']
             : ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:4096'];
 
+        $allowedStatuses = $this->user()?->role === 'penulis'
+            ? 'in:draft,review'
+            : 'in:draft,review,published,archived';
+
         return [
             'title' => ['required', 'string', 'max:255'],
             'category' => ['required', 'string', 'max:100'],
@@ -43,6 +57,7 @@ class ActivityRequest extends FormRequest
             'event_date' => ['nullable', 'date'],
             'description' => ['required', 'string', 'max:5000'],
             'image' => $imageRule,
+            'status' => ['required', 'string', $allowedStatuses],
             'is_active' => ['required', 'boolean'],
             'order' => ['required', 'integer', 'min:0', 'max:9999'],
         ];

@@ -43,6 +43,11 @@ class PengurusController extends Controller
         return view('admin.pengurus.create', compact('divisis'));
     }
 
+    protected function routePrefix(Request $request): string
+    {
+        return $request->user()?->role === 'staff' ? 'staff' : 'admin';
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -56,7 +61,7 @@ class PengurusController extends Controller
 
         Pengurus::create($validated);
 
-        return redirect()->route('admin.pengurus.index')->with('status', 'Data pengurus berhasil ditambahkan.');
+        return redirect()->route($this->routePrefix($request).'.pengurus.index')->with('status', 'Data pengurus berhasil ditambahkan.');
     }
 
     public function edit(Pengurus $pengurus): View
@@ -79,14 +84,14 @@ class PengurusController extends Controller
 
         $pengurus->update($validated);
 
-        return redirect()->route('admin.pengurus.index')->with('status', 'Data pengurus berhasil diperbarui.');
+        return redirect()->route($this->routePrefix($request).'.pengurus.index')->with('status', 'Data pengurus berhasil diperbarui.');
     }
 
-    public function destroy(Pengurus $pengurus): RedirectResponse
+    public function destroy(Request $request, Pengurus $pengurus): RedirectResponse
     {
         $pengurus->delete();
 
-        return redirect()->route('admin.pengurus.index')->with('status', 'Data pengurus berhasil dihapus.');
+        return redirect()->route($this->routePrefix($request).'.pengurus.index')->with('status', 'Data pengurus berhasil dihapus.');
     }
 
     public function toggleActive(Pengurus $pengurus): RedirectResponse
