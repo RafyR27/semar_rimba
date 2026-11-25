@@ -6,7 +6,13 @@
         <x-auth-session-status class="text-center" :status="session('status')" />
 
 
-        <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-6">
+        <form
+            method="POST"
+            action="{{ route('login.store') }}"
+            x-data="{ submitting: false }"
+            @submit="submitting = true"
+            class="flex flex-col gap-6"
+        >
             @csrf
 
             <!-- Email Address -->
@@ -34,7 +40,7 @@
                 />
 
                 @if (Route::has('password.request'))
-                    <flux:link class="absolute top-0 text-sm end-0" :href="route('password.request')" wire:navigate>
+                    <flux:link class="absolute top-0 text-sm inset-e-0" :href="route('password.request')" wire:navigate>
                         {{ __('Forgot your password?') }}
                     </flux:link>
                 @endif
@@ -44,15 +50,17 @@
             <flux:checkbox name="remember" :label="__('Remember me')" :checked="old('remember')" />
 
             <div class="flex items-center justify-end">
-                <flux:button variant="primary" type="submit" class="w-full" data-test="login-button">
-                    {{ __('Log in') }}
+                <flux:button
+                    variant="primary"
+                    type="submit"
+                    class="w-full"
+                    data-test="login-button"
+                    x-bind:disabled="submitting"
+                >
+                    <flux:icon.arrow-path x-show="submitting" x-cloak class="size-4 animate-spin" />
+                    <span>{{ __('Log in') }}</span>
                 </flux:button>
             </div>
         </form>
-
-        <div class="space-x-1 text-sm text-center rtl:space-x-reverse text-zinc-600 dark:text-zinc-400">
-            <span>{{ __('Don\'t have an account?') }}</span>
-            <flux:link :href="route('register')" wire:navigate>{{ __('Sign up') }}</flux:link>
-        </div>
     </div>
 </x-layouts::auth>
