@@ -59,6 +59,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('activities/{activity}/status', [ActivityController::class, 'updateStatus'])
             ->whereNumber('activity')
             ->name('activities.status');
+        Route::get('activities/{activity}/document', [ActivityController::class, 'downloadDocument'])
+            ->whereNumber('activity')
+            ->name('activities.document');
         Route::resource('activities', ActivityController::class)
             ->parameters(['activities' => 'activity'])
             ->whereNumber('activity')
@@ -106,6 +109,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('activities/{activity}/status', [ActivityController::class, 'updateStatus'])
             ->whereNumber('activity')
             ->name('activities.status');
+        Route::get('activities/{activity}/document', [ActivityController::class, 'downloadDocument'])
+            ->whereNumber('activity')
+            ->name('activities.document');
         Route::resource('activities', ActivityController::class)
             ->parameters(['activities' => 'activity'])
             ->whereNumber('activity')
@@ -149,6 +155,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::patch('activities/{activity}/status', [ActivityController::class, 'updateStatus'])
             ->name('activities.status');
+        Route::get('activities/{activity}/document', [ActivityController::class, 'downloadDocument'])
+            ->whereNumber('activity')
+            ->name('activities.document');
         Route::resource('activities', ActivityController::class)
             ->parameters(['activities' => 'activity'])
             ->except(['show']);

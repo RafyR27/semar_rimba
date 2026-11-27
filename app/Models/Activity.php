@@ -21,6 +21,10 @@ use Illuminate\Support\Carbon;
  * @property string $description
  * @property string $image_url
  * @property string $image_public_id
+ * @property string|null $document_path
+ * @property string|null $document_original_name
+ * @property string|null $document_mime_type
+ * @property int|null $document_size
  * @property string $status
  * @property bool $is_active
  * @property int $order
@@ -40,6 +44,10 @@ use Illuminate\Support\Carbon;
     'description',
     'image_url',
     'image_public_id',
+    'document_path',
+    'document_original_name',
+    'document_mime_type',
+    'document_size',
     'status',
     'is_active',
     'order',
@@ -58,9 +66,34 @@ class Activity extends Model
     {
         return [
             'event_date' => 'date',
+            'document_size' => 'integer',
             'is_active' => 'boolean',
             'order' => 'integer',
         ];
+    }
+
+    /**
+     * Determine whether the activity has an attached supporting document.
+     */
+    public function hasDocument(): bool
+    {
+        return ! empty($this->document_path);
+    }
+
+    /**
+     * Format the attached document size into a human-readable string.
+     */
+    public function formattedDocumentSize(): ?string
+    {
+        if ($this->document_size === null) {
+            return null;
+        }
+
+        if ($this->document_size >= 1048576) {
+            return number_format($this->document_size / 1048576, 2).' MB';
+        }
+
+        return max(1, (int) round($this->document_size / 1024)).' KB';
     }
 
     /**

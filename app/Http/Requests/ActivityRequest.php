@@ -57,6 +57,14 @@ class ActivityRequest extends FormRequest
             'event_date' => ['nullable', 'date'],
             'description' => ['required', 'string', 'max:5000'],
             'image' => $imageRule,
+            'document' => [
+                'nullable',
+                'file',
+                'mimes:pdf,doc,docx,jpg,jpeg,png',
+                'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png',
+                'max:5120',
+            ],
+            'remove_document' => ['nullable', 'boolean'],
             'status' => ['required', 'string', $allowedStatuses],
             'is_active' => ['required', 'boolean'],
             'order' => ['required', 'integer', 'min:0', 'max:9999'],
@@ -77,6 +85,7 @@ class ActivityRequest extends FormRequest
             'event_date' => 'Tanggal Pelaksanaan',
             'description' => 'Deskripsi Kegiatan',
             'image' => 'Foto Dokumentasi',
+            'document' => 'Dokumen Pendukung',
             'is_active' => 'Status Publish',
             'order' => 'Urutan Tampil',
         ];
@@ -97,6 +106,10 @@ class ActivityRequest extends FormRequest
             'image.image' => 'File yang diunggah harus berupa gambar.',
             'image.mimes' => 'Format gambar harus berupa JPG, JPEG, PNG, atau WEBP.',
             'image.max' => 'Ukuran gambar maksimal adalah 4MB.',
+            'document.file' => 'Dokumen pendukung harus berupa file yang valid.',
+            'document.mimes' => 'Format dokumen pendukung harus berupa PDF, DOC, DOCX, JPG, JPEG, atau PNG.',
+            'document.mimetypes' => 'Tipe MIME dokumen pendukung tidak diizinkan.',
+            'document.max' => 'Ukuran dokumen pendukung maksimal adalah 5MB.',
         ];
     }
 }

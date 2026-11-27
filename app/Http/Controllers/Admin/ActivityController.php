@@ -10,12 +10,26 @@ use App\Services\CloudinaryService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use RuntimeException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
 
 class ActivityController extends Controller
 {
+    /**
+     * Private Laravel storage disk used for activity supporting documents.
+     */
+    private const DOCUMENT_DISK = 'local';
+
+    /**
+     * Directory within the private disk where activity documents are stored.
+     */
+    private const DOCUMENT_DIRECTORY = 'activity-documents';
+
     /**
      * Resolve the route prefix based on the authenticated user's role.
      */
@@ -120,20 +134,40 @@ class ActivityController extends Controller
             return back()->withInput()->with('error', $e->getMessage());
         }
 
-        Activity::create([
-            'user_id' => $user?->id,
-            'title' => $validated['title'],
-            'slug' => Str::slug($validated['title']).'-'.Str::lower(Str::random(5)),
-            'category' => $validated['category'],
-            'location' => $validated['location'] ?? null,
-            'event_date' => $validated['event_date'] ?? null,
-            'description' => $validated['description'],
-            'image_url' => $upload['secure_url'],
-            'image_public_id' => $upload['public_id'],
-            'status' => $validated['status'],
-            'is_active' => $validated['status'] === 'published',
-            'order' => (int) $validated['order'],
-        ]);
+        $documentAttributes = [
+            'document_path' => null,
+            'document_original_name' => null,
+            'document_mime_type' => null,
+            'document_size' => null,
+        ];
+
+        $documentFile = $request->file('document');
+        if ($documentFile instanceof UploadedFile) {
+            $documentAttributes = $this->storePrivateDocument($documentFile);
+        }
+
+        try {
+            Activity::create([
+                'user_id' => $user?->id,
+                'title' => $validated['title'],
+                'slug' => Str::slug($validated['title']).'-'.Str::lower(Str::random(5)),
+                'category' => $validated['category'],
+                'location' => $validated['location'] ?? null,
+                'event_date' => $validated['event_date'] ?? null,
+                'description' => $validated['description'],
+                'image_url' => $upload['secure_url'],
+                'image_public_id' => $upload['public_id'],
+                ...$documentAttributes,
+                'status' => $validated['status'],
+                'is_active' => $validated['status'] === 'published',
+                'order' => (int) $validated['order'],
+            ]);
+        } catch (Throwable $e) {
+            $this->deletePrivateDocument($documentAttributes['document_path']);
+            $cloudinary->destroy($upload['public_id']);
+
+            return back()->withInput()->with('error', 'Kegiatan gagal disimpan. Silakan coba lagi.');
+        }
 
         return redirect()
             ->route($this->routePrefix($user).'.activities.index')
@@ -181,6 +215,7 @@ class ActivityController extends Controller
             'order' => (int) $validated['order'],
         ];
 
+        $previousImagePublicId = null;
         if ($request->hasFile('image')) {
             $file = $request->file('image');
 
@@ -191,19 +226,78 @@ class ActivityController extends Controller
                     return back()->withInput()->with('error', $e->getMessage());
                 }
 
-                // Delete previous image from Cloudinary safely
-                $cloudinary->destroy($activity->image_public_id);
-
+                $previousImagePublicId = $activity->image_public_id;
                 $updateData['image_url'] = $upload['secure_url'];
                 $updateData['image_public_id'] = $upload['public_id'];
             }
         }
 
-        $activity->update($updateData);
+        $previousDocumentPath = $activity->document_path;
+        $newDocumentPath = null;
+        $shouldRemoveOldDocument = false;
+
+        $documentFile = $request->file('document');
+        if ($documentFile instanceof UploadedFile) {
+            $storedDocument = $this->storePrivateDocument($documentFile);
+            $newDocumentPath = $storedDocument['document_path'];
+            $updateData = array_merge($updateData, $storedDocument);
+            $shouldRemoveOldDocument = ! empty($previousDocumentPath);
+        } elseif ($request->boolean('remove_document') && ! empty($previousDocumentPath)) {
+            $updateData['document_path'] = null;
+            $updateData['document_original_name'] = null;
+            $updateData['document_mime_type'] = null;
+            $updateData['document_size'] = null;
+            $shouldRemoveOldDocument = true;
+        }
+
+        try {
+            $activity->update($updateData);
+        } catch (Throwable $e) {
+            $this->deletePrivateDocument($newDocumentPath);
+
+            return back()->withInput()->with('error', 'Kegiatan gagal diperbarui. Silakan coba lagi.');
+        }
+
+        if ($previousImagePublicId !== null) {
+            $cloudinary->destroy($previousImagePublicId);
+        }
+
+        if ($shouldRemoveOldDocument) {
+            $this->deletePrivateDocument($previousDocumentPath);
+        }
 
         return redirect()
             ->route($this->routePrefix($user).'.activities.index')
             ->with('status', 'Kegiatan berhasil diperbarui!');
+    }
+
+    /**
+     * Download the private supporting document attached to an activity if authorized.
+     */
+    public function downloadDocument(Request $request, Activity $activity): StreamedResponse
+    {
+        $user = $request->user();
+        $currentStatus = $activity->status ?? ($activity->is_active ? 'published' : 'draft');
+
+        if ($this->isReviewer($user)) {
+            if (! in_array($currentStatus, ['review', 'published', 'archived'], true)) {
+                abort(403);
+            }
+        } elseif ($user?->role === 'penulis') {
+            if ($activity->user_id !== $user->id) {
+                abort(403);
+            }
+        } else {
+            abort(403);
+        }
+
+        if (empty($activity->document_path) || ! Storage::disk(self::DOCUMENT_DISK)->exists($activity->document_path)) {
+            abort(404, 'Dokumen pendukung tidak ditemukan.');
+        }
+
+        $downloadName = $activity->document_original_name ?: basename($activity->document_path);
+
+        return Storage::disk(self::DOCUMENT_DISK)->download($activity->document_path, $downloadName);
     }
 
     /**
@@ -277,11 +371,16 @@ class ActivityController extends Controller
             abort(403);
         }
 
+        $documentPath = $activity->document_path;
+
         // Delete image asset from Cloudinary
         $cloudinary->destroy($activity->image_public_id);
 
         // Delete database record
         $activity->delete();
+
+        // Delete attached private document after DB record is removed
+        $this->deletePrivateDocument($documentPath);
 
         return redirect()
             ->route($this->routePrefix($user).'.activities.index')
@@ -303,5 +402,48 @@ class ActivityController extends Controller
         $statusText = $activity->is_active ? 'dipublikasikan' : 'disembunyikan (draft)';
 
         return back()->with('status', "Kegiatan berhasil {$statusText}!");
+    }
+
+    /**
+     * Store a validated supporting document in the private Laravel disk.
+     *
+     * @return array{
+     *     document_path: string,
+     *     document_original_name: string,
+     *     document_mime_type: string|null,
+     *     document_size: int|null
+     * }
+     */
+    protected function storePrivateDocument(UploadedFile $file): array
+    {
+        $storedPath = $file->store(self::DOCUMENT_DIRECTORY, self::DOCUMENT_DISK);
+
+        if ($storedPath === false) {
+            throw new RuntimeException('Gagal menyimpan dokumen pendukung ke penyimpanan.');
+        }
+
+        $originalName = basename($file->getClientOriginalName());
+        $size = $file->getSize();
+
+        return [
+            'document_path' => $storedPath,
+            'document_original_name' => $originalName !== '' ? $originalName : basename($storedPath),
+            'document_mime_type' => $file->getClientMimeType(),
+            'document_size' => is_int($size) ? $size : null,
+        ];
+    }
+
+    /**
+     * Safely delete an existing private document from storage if it exists.
+     */
+    protected function deletePrivateDocument(?string $path): void
+    {
+        if (empty($path)) {
+            return;
+        }
+
+        if (Storage::disk(self::DOCUMENT_DISK)->exists($path)) {
+            Storage::disk(self::DOCUMENT_DISK)->delete($path);
+        }
     }
 }

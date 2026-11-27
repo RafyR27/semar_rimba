@@ -156,6 +156,23 @@
                     />
                 </div>
 
+                {{-- Dokumen Pendukung (Private Laravel Storage) --}}
+                <div class="space-y-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
+                    <label for="document" class="block text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                        {{ __('Dokumen Pendukung (Opsional)') }}
+                    </label>
+                    <input
+                        type="file"
+                        name="document"
+                        id="document"
+                        accept=".pdf,.doc,.docx,image/jpeg,image/png"
+                        class="block w-full text-sm text-zinc-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-200 dark:file:bg-zinc-700 file:text-zinc-800 dark:file:text-zinc-100 hover:file:bg-zinc-300 dark:hover:file:bg-zinc-600 file:cursor-pointer cursor-pointer border border-zinc-300 dark:border-zinc-700 rounded-lg p-2 dark:bg-zinc-800"
+                    />
+                    <p class="text-xs text-zinc-500">
+                        {{ __('Unggah proposal, surat tugas, LPJ, atau bukti pendukung (PDF, DOC, DOCX, JPG, PNG · Maks. 5MB). File disimpan secara privat dan hanya dapat diakses oleh pengguna berwenang.') }}
+                    </p>
+                </div>
+
                 {{-- Status & Order Setting --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
                     <div class="space-y-2">
