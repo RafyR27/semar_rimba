@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
+ * @property int|null $user_id
  * @property string $title
  * @property string $slug
  * @property string $category
@@ -19,6 +21,7 @@ use Illuminate\Support\Carbon;
  * @property string $description
  * @property string $image_url
  * @property string $image_public_id
+ * @property string $status
  * @property bool $is_active
  * @property int $order
  * @property Carbon|null $created_at
@@ -28,6 +31,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static> ordered()
  */
 #[Fillable([
+    'user_id',
     'title',
     'slug',
     'category',
@@ -36,6 +40,7 @@ use Illuminate\Support\Carbon;
     'description',
     'image_url',
     'image_public_id',
+    'status',
     'is_active',
     'order',
 ])]
@@ -78,5 +83,15 @@ class Activity extends Model
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('order', 'asc')->orderBy('event_date', 'desc')->orderBy('id', 'desc');
+    }
+
+    /**
+     * Get the user that owns the activity.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

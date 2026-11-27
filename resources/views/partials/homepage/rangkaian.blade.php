@@ -5,7 +5,8 @@
                 Jalur Menuju Syal Kuning
             </h2>
             <p class="mt-4 text-base sm:text-lg  leading-relaxed text-pretty">
-                Setiap anggota Semar Rimba dibina secara bertahap, dari pendidikan &amp; latihan dasar sampai penyematan syal kuning.
+                Setiap anggota Semar Rimba dibina secara bertahap, dari pendidikan &amp; latihan dasar sampai penyematan
+                syal kuning.
             </p>
         </div>
 
@@ -16,13 +17,11 @@
                 <article class="swiper-slide lg:!w-auto lg:!h-auto rounded-md flex flex-col justify-between">
                     <div class="space-y-4">
                         <div class="relative h-56 rounded-md overflow-hidden">
-                            <img
-                                src="https://images.unsplash.com/photo-1510312305653-8ed496efae75?q=80&w=1000&auto=format&fit=crop"
-                                alt="Pendidikan dan Latihan Dasar DIKLAT SEMAR RIMBA"
-                                class="size-full object-cover"
-                                loading="lazy"
-                            />
-                            <span class="absolute top-3 left-3 px-3 py-1 rounded-md bg-stone-950/85 border border-white/20 text-white font-bold text-xs uppercase tracking-wider">
+                            <img src="https://images.unsplash.com/photo-1510312305653-8ed496efae75?q=80&w=1000&auto=format&fit=crop"
+                                alt="Pendidikan dan Latihan Dasar DIKLAT SEMAR RIMBA" class="size-full object-cover"
+                                loading="lazy" />
+                            <span
+                                class="absolute top-3 left-3 px-3 py-1 rounded-md bg-stone-950/85 border border-white/20 text-white font-bold text-xs uppercase tracking-wider">
                                 Pendidikan Dasar
                             </span>
                         </div>
@@ -32,7 +31,9 @@
                                 Pendidikan &amp; Latihan Dasar (DIKLAT)
                             </h3>
                             <p class="mt-2.5 leading-relaxed">
-                                Proses kaderisasi wajib calon rimbawan baru untuk membentuk ketahanan mental, kedisiplinan korsa, dan penguasaan teknik dasar navigasi kompas-peta, bivak hujan tropis, manajemen perbekalan, serta survival lapangan.
+                                Proses kaderisasi wajib calon rimbawan baru untuk membentuk ketahanan mental,
+                                kedisiplinan korsa, dan penguasaan teknik dasar navigasi kompas-peta, bivak hujan
+                                tropis, manajemen perbekalan, serta survival lapangan.
                             </p>
                         </div>
                     </div>
@@ -42,13 +43,11 @@
                 <article class="swiper-slide lg:!w-auto lg:!h-auto rounded-md flex flex-col justify-between">
                     <div class="space-y-4">
                         <div class="relative h-56 rounded-md overflow-hidden">
-                            <img
-                                src="https://images.unsplash.com/photo-1510312305653-8ed496efae75?q=80&w=1000&auto=format&fit=crop"
-                                alt="Pendidikan dan Latihan Dasar DIKLAT SEMAR RIMBA"
-                                class="size-full object-cover"
-                                loading="lazy"
-                            />
-                            <span class="absolute top-3 left-3 px-3 py-1 rounded-md bg-stone-950/85 border border-white/20 text-white font-bold text-xs uppercase tracking-wider">
+                            <img src="https://images.unsplash.com/photo-1510312305653-8ed496efae75?q=80&w=1000&auto=format&fit=crop"
+                                alt="Pendidikan dan Latihan Dasar DIKLAT SEMAR RIMBA" class="size-full object-cover"
+                                loading="lazy" />
+                            <span
+                                class="absolute top-3 left-3 px-3 py-1 rounded-md bg-stone-950/85 border border-white/20 text-white font-bold text-xs uppercase tracking-wider">
                                 Pendidikan Dasar
                             </span>
                         </div>
@@ -58,7 +57,9 @@
                                 Pendidikan &amp; Latihan Dasar (DIKLAT)
                             </h3>
                             <p class="mt-2.5 leading-relaxed">
-                                Proses kaderisasi wajib calon rimbawan baru untuk membentuk ketahanan mental, kedisiplinan korsa, dan penguasaan teknik dasar navigasi kompas-peta, bivak hujan tropis, manajemen perbekalan, serta survival lapangan.
+                                Proses kaderisasi wajib calon rimbawan baru untuk membentuk ketahanan mental,
+                                kedisiplinan korsa, dan penguasaan teknik dasar navigasi kompas-peta, bivak hujan
+                                tropis, manajemen perbekalan, serta survival lapangan.
                             </p>
                         </div>
                     </div>
@@ -68,13 +69,11 @@
                 <article class="swiper-slide lg:!w-auto lg:!h-auto rounded-md flex flex-col justify-between">
                     <div class="space-y-4">
                         <div class="relative h-56 rounded-md overflow-hidden">
-                            <img
-                                src="https://images.unsplash.com/photo-1510312305653-8ed496efae75?q=80&w=1000&auto=format&fit=crop"
-                                alt="Pendidikan dan Latihan Dasar DIKLAT SEMAR RIMBA"
-                                class="size-full object-cover"
-                                loading="lazy"
-                            />
-                            <span class="absolute top-3 left-3 px-3 py-1 rounded-md bg-stone-950/85 border border-white/20 text-white font-bold text-xs uppercase tracking-wider">
+                            <img src="https://images.unsplash.com/photo-1510312305653-8ed496efae75?q=80&w=1000&auto=format&fit=crop"
+                                alt="Pendidikan dan Latihan Dasar DIKLAT SEMAR RIMBA" class="size-full object-cover"
+                                loading="lazy" />
+                            <span
+                                class="absolute top-3 left-3 px-3 py-1 rounded-md bg-stone-950/85 border border-white/20 text-white font-bold text-xs uppercase tracking-wider">
                                 Pendidikan Dasar
                             </span>
                         </div>
@@ -84,7 +83,9 @@
                                 Pendidikan &amp; Latihan Dasar (DIKLAT)
                             </h3>
                             <p class="mt-2.5 leading-relaxed">
-                                Proses kaderisasi wajib calon rimbawan baru untuk membentuk ketahanan mental, kedisiplinan korsa, dan penguasaan teknik dasar navigasi kompas-peta, bivak hujan tropis, manajemen perbekalan, serta survival lapangan.
+                                Proses kaderisasi wajib calon rimbawan baru untuk membentuk ketahanan mental,
+                                kedisiplinan korsa, dan penguasaan teknik dasar navigasi kompas-peta, bivak hujan
+                                tropis, manajemen perbekalan, serta survival lapangan.
                             </p>
                         </div>
                     </div>
@@ -94,13 +95,11 @@
                 <article class="swiper-slide lg:!w-auto lg:!h-auto rounded-md flex flex-col justify-between">
                     <div class="space-y-4">
                         <div class="relative h-56 rounded-md overflow-hidden">
-                            <img
-                                src="https://images.unsplash.com/photo-1510312305653-8ed496efae75?q=80&w=1000&auto=format&fit=crop"
-                                alt="Pendidikan dan Latihan Dasar DIKLAT SEMAR RIMBA"
-                                class="size-full object-cover"
-                                loading="lazy"
-                            />
-                            <span class="absolute top-3 left-3 px-3 py-1 rounded-md bg-stone-950/85 border border-white/20 text-white font-bold text-xs uppercase tracking-wider">
+                            <img src="https://images.unsplash.com/photo-1510312305653-8ed496efae75?q=80&w=1000&auto=format&fit=crop"
+                                alt="Pendidikan dan Latihan Dasar DIKLAT SEMAR RIMBA" class="size-full object-cover"
+                                loading="lazy" />
+                            <span
+                                class="absolute top-3 left-3 px-3 py-1 rounded-md bg-stone-950/85 border border-white/20 text-white font-bold text-xs uppercase tracking-wider">
                                 Pendidikan Dasar
                             </span>
                         </div>
@@ -110,7 +109,9 @@
                                 Pendidikan &amp; Latihan Dasar (DIKLAT)
                             </h3>
                             <p class="mt-2.5 leading-relaxed">
-                                Proses kaderisasi wajib calon rimbawan baru untuk membentuk ketahanan mental, kedisiplinan korsa, dan penguasaan teknik dasar navigasi kompas-peta, bivak hujan tropis, manajemen perbekalan, serta survival lapangan.
+                                Proses kaderisasi wajib calon rimbawan baru untuk membentuk ketahanan mental,
+                                kedisiplinan korsa, dan penguasaan teknik dasar navigasi kompas-peta, bivak hujan
+                                tropis, manajemen perbekalan, serta survival lapangan.
                             </p>
                         </div>
                     </div>
@@ -137,7 +138,8 @@
                     </button>
                 </div>
 
-                <div class="rangkaian-pagination font-mono text-sm tracking-wider font-semibold text-stone-900 select-none">
+                <div
+                    class="rangkaian-pagination font-mono text-sm tracking-wider font-semibold text-stone-900 select-none">
                     01 / 04
                 </div>
             </div>

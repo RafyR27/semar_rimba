@@ -9,6 +9,7 @@ use Mockery\MockInterface;
 beforeEach(function () {
     $this->user = User::factory()->create([
         'email_verified_at' => now(),
+        'role' => 'admin',
     ]);
 });
 

@@ -1,3 +1,9 @@
+@php
+    $prefix = $routePrefix ?? 'admin';
+    $userRole = auth()->user()?->role;
+    $isReviewer = in_array($userRole, ['admin', 'staff'], true);
+@endphp
+
 <x-layouts::app :title="__('Manajemen Berita')">
     <div class="flex flex-col gap-6 w-full">
         {{-- Page Header --}}
@@ -9,53 +15,77 @@
                 </flux:subheading>
             </div>
 
-            <flux:button variant="primary" icon="plus" href="{{ route('admin.beritas.create') }}" wire:navigate>
-                {{ __('Tambah Berita') }}
-            </flux:button>
+            @unless ($isReviewer)
+                <flux:button class="cursor-pointer" variant="primary" icon="plus" href="{{ route($prefix . '.beritas.create') }}" wire:navigate>
+                    {{ __('Tambah Berita') }}
+                </flux:button>
+            @endunless
         </div>
 
-        {{-- Flash Messages --}}
-        @if (session('status'))
-            <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-sm flex items-center justify-between">
-                <span>{{ session('status') }}</span>
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-400 text-sm flex items-center justify-between">
-                <span>{{ session('error') }}</span>
-            </div>
+        {{-- Toast Flash Messages --}}
+        @if (session('status') || session('error'))
+            @php
+                $toastVariant = session('error') ? 'danger' : 'success';
+                $toastText = session('error') ?? session('status');
+            @endphp
+            <div
+                x-data
+                x-init="$nextTick(() => Flux.toast({ variant: @js($toastVariant), text: @js($toastText) }))"
+                class="hidden"
+            ></div>
         @endif
 
         {{-- Search & Filter --}}
-        <form method="GET" action="{{ route('admin.beritas.index') }}" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <div class="relative flex-1">
-                <input
-                    type="search"
+        <form
+            method="GET"
+            action="{{ route($prefix . '.beritas.index') }}"
+            x-data="{ submitting: false }"
+            @submit="submitting = true"
+            class="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3"
+        >
+            <div class="flex-1 min-w-60 max-w-md">
+                <flux:input
                     name="search"
-                    value="{{ $search }}"
-                    placeholder="{{ __('Cari judul, slug, atau isi berita...') }}"
-                    class="w-full px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                    :value="$search"
+                    icon="magnifying-glass"
+                    :placeholder="__('Cari judul berita...')"
                 />
             </div>
 
-            <div class="flex items-center gap-3">
-                <select
-                    name="status"
-                    class="px-3.5 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
-                >
-                    <option value="all" @selected($status === 'all')>{{ __('Semua Status') }}</option>
-                    <option value="published" @selected($status === 'published')>{{ __('Published') }}</option>
-                    <option value="draft" @selected($status === 'draft')>{{ __('Draft') }}</option>
-                </select>
-
-                <flux:button variant="subtle" type="submit" icon="magnifying-glass">
-                    {{ __('Cari') }}
+            <div class="flex flex-wrap items-center gap-2">
+                <flux:button class="cursor-pointer" type="submit" variant="filled" x-bind:disabled="submitting">
+                    <span class="inline-flex items-center justify-center gap-2">
+                        <flux:icon.arrow-path x-show="submitting" x-cloak class="size-4 animate-spin" />
+                        <span>{{ __('Cari') }}</span>
+                    </span>
                 </flux:button>
 
+                <div class="w-40">
+                    <flux:select name="status" @change="submitting = true; $el.form.submit()" aria-label="{{ __('Filter Status') }}">
+                        <option value="all" @selected($status === 'all')>{{ __('Semua Status') }}</option>
+                        @unless ($isReviewer)
+                            <option value="draft" @selected($status === 'draft')>{{ __('Draft') }}</option>
+                        @endunless
+                        <option value="review" @selected($status === 'review')>{{ __('Review') }}</option>
+                        <option value="published" @selected($status === 'published')>{{ __('Published') }}</option>
+                        <option value="archived" @selected($status === 'archived')>{{ __('Archived') }}</option>
+                    </flux:select>
+                </div>
+
                 @if ($search !== '' || $status !== 'all')
-                    <flux:button variant="subtle" href="{{ route('admin.beritas.index') }}" wire:navigate>
-                        {{ __('Reset') }}
+                    <flux:button
+                        class="cursor-pointer"
+                        variant="subtle"
+                        href="{{ route($prefix . '.beritas.index') }}"
+                        wire:navigate
+                        x-data="{ loading: false }"
+                        @click="loading = true"
+                        x-bind:class="{ 'pointer-events-none opacity-60': loading }"
+                    >
+                        <span class="inline-flex items-center justify-center gap-2">
+                            <flux:icon.arrow-path x-show="loading" x-cloak class="size-4 animate-spin" />
+                            <span>{{ __('Reset') }}</span>
+                        </span>
                     </flux:button>
                 @endif
             </div>
@@ -72,13 +102,17 @@
                     </div>
                     <flux:heading size="lg">{{ __('Belum Ada Berita') }}</flux:heading>
                     <flux:text class="mt-1 text-sm text-zinc-500 max-w-md mx-auto">
-                        {{ __('Belum ada berita yang tersimpan. Tambahkan berita pertama untuk mengisi halaman publik SEMAR RIMBA.') }}
+                        {{ $isReviewer
+                            ? __('Belum ada berita yang diajukan untuk direview atau dipublikasikan.')
+                            : __('Belum ada berita yang tersimpan. Tambahkan berita pertama untuk mengisi halaman publik SEMAR RIMBA.') }}
                     </flux:text>
-                    <div class="mt-6">
-                        <flux:button variant="primary" icon="plus" href="{{ route('admin.beritas.create') }}" wire:navigate>
-                            {{ __('Tambah Berita Sekarang') }}
-                        </flux:button>
-                    </div>
+                    @unless ($isReviewer)
+                        <div class="mt-6">
+                            <flux:button class="cursor-pointer" variant="primary" icon="plus" href="{{ route($prefix . '.beritas.create') }}" wire:navigate>
+                                {{ __('Tambah Berita Sekarang') }}
+                            </flux:button>
+                        </div>
+                    @endunless
                 </div>
             @else
                 <div class="overflow-x-auto">
@@ -86,14 +120,27 @@
                         <thead class="bg-zinc-50 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-700 text-xs text-zinc-500 uppercase tracking-wider font-semibold">
                             <tr>
                                 <th scope="col" class="py-3 px-4 w-32">{{ __('Thumbnail') }}</th>
-                                <th scope="col" class="py-3 px-4">{{ __('Judul & Ringkasan') }}</th>
+                                <th scope="col" class="py-3 px-4 min-w-48">{{ __('Judul') }}</th>
+                                <th scope="col" class="py-3 px-4 min-w-60">{{ __('Ringkasan') }}</th>
                                 <th scope="col" class="py-3 px-4 w-36">{{ __('Tanggal') }}</th>
                                 <th scope="col" class="py-3 px-4 w-32 text-center">{{ __('Status') }}</th>
-                                <th scope="col" class="py-3 px-4 w-28 text-right">{{ __('Aksi') }}</th>
+                                <th scope="col" class="py-3 px-4 w-24 text-right">{{ __('Aksi') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
                             @foreach ($beritas as $berita)
+                                @php
+                                    $beritaStatus = $berita->status ?? ($berita->is_published ? 'published' : 'draft');
+                                    $statusBadge = match ($beritaStatus) {
+                                        'published' => ['label' => 'Published', 'bg' => 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400', 'dot' => 'bg-emerald-500'],
+                                        'review' => ['label' => 'Review', 'bg' => 'bg-amber-500/15 text-amber-700 dark:text-amber-400', 'dot' => 'bg-amber-500'],
+                                        'archived' => ['label' => 'Archived', 'bg' => 'bg-rose-500/10 text-rose-700 dark:text-rose-400', 'dot' => 'bg-rose-500'],
+                                        default => ['label' => 'Draft', 'bg' => 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300', 'dot' => 'bg-zinc-400'],
+                                    };
+                                    $canDelete = $isReviewer
+                                        ? in_array($beritaStatus, ['review', 'archived'], true)
+                                        : $beritaStatus === 'draft';
+                                @endphp
                                 <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/40 transition">
                                     {{-- Thumbnail --}}
                                     <td class="py-4 px-4">
@@ -109,79 +156,89 @@
                                         </div>
                                     </td>
 
-                                    {{-- Title & Excerpt --}}
-                                    <td class="py-4 px-4">
-                                        <div class="font-bold text-zinc-900 dark:text-white leading-snug">
-                                            {{ $berita->judul }}
-                                        </div>
-                                        <div class="text-xs font-mono text-zinc-400 mt-0.5">
-                                            /{{ $berita->slug }}
-                                        </div>
-                                        <div class="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-1 mt-1 max-w-xl">
+                                    {{-- Judul --}}
+                                    <td class="py-4 px-4 font-bold text-zinc-900 dark:text-white leading-snug">
+                                        {{ $berita->judul }}
+                                    </td>
+
+                                    {{-- Ringkasan --}}
+                                    <td class="py-4 px-4 text-xs text-zinc-500 dark:text-zinc-400">
+                                        <p class="line-clamp-2 max-w-md">
                                             {{ \Illuminate\Support\Str::limit(strip_tags($berita->konten), 120) }}
-                                        </div>
+                                        </p>
                                     </td>
 
                                     {{-- Publication Date --}}
-                                    <td class="py-4 px-4 text-xs text-zinc-600 dark:text-zinc-400">
+                                    <td class="py-4 px-4 text-xs text-zinc-600 dark:text-zinc-400 whitespace-nowrap">
                                         {{ $berita->publicationDate()?->format('d M Y') ?? __('Belum diatur') }}
                                     </td>
 
-                                    {{-- Publication Status Toggle --}}
+                                    {{-- Publication Status (Badge Only) --}}
                                     <td class="py-4 px-4 text-center">
-                                        <form method="POST" action="{{ route('admin.beritas.toggle', $berita) }}">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button
-                                                type="submit"
-                                                title="{{ $berita->is_published ? __('Klik untuk menyimpan sebagai draft') : __('Klik untuk menerbitkan') }}"
-                                                class="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition {{ $berita->is_published ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/25' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-300 dark:hover:bg-zinc-600' }}"
-                                            >
-                                                <span class="size-1.5 rounded-full {{ $berita->is_published ? 'bg-emerald-500' : 'bg-zinc-400' }}"></span>
-                                                {{ $berita->is_published ? __('Published') : __('Draft') }}
-                                            </button>
-                                        </form>
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold {{ $statusBadge['bg'] }}">
+                                            <span class="size-1.5 rounded-full {{ $statusBadge['dot'] }}"></span>
+                                            {{ __($statusBadge['label']) }}
+                                        </span>
                                     </td>
 
-                                    {{-- Actions --}}
+                                    {{-- Aksi (Dropdown) --}}
                                     <td class="py-4 px-4 text-right">
-                                        <div class="flex items-center justify-end gap-2">
-                                            @if ($berita->is_published)
-                                                <flux:button
-                                                    size="sm"
-                                                    variant="subtle"
+                                        <flux:dropdown position="bottom" align="end">
+                                            <flux:button class="cursor-pointer"
+                                                variant="subtle"
+                                                size="sm"
+                                                icon="ellipsis-vertical"
+                                                aria-label="{{ __('Aksi') }}"
+                                            />
+
+                                            <flux:menu>
+                                                <flux:menu.item
                                                     icon="arrow-top-right-on-square"
                                                     href="{{ route('berita.show', $berita->slug) }}"
                                                     target="_blank"
-                                                    title="{{ __('Lihat di Halaman Publik') }}"
-                                                />
-                                            @endif
+                                                >
+                                                    {{ $beritaStatus === 'published' ? __('Lihat') : __('Preview') }}
+                                                </flux:menu.item>
 
-                                            <flux:button
-                                                size="sm"
-                                                variant="subtle"
-                                                icon="pencil-square"
-                                                href="{{ route('admin.beritas.edit', $berita) }}"
-                                                wire:navigate
-                                                title="{{ __('Edit Berita') }}"
-                                            />
+                                                @if ($isReviewer)
+                                                    @if ($beritaStatus === 'review')
+                                                        <form method="POST" action="{{ route($prefix . '.beritas.status', $berita) }}">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="status" value="published" />
+                                                            <flux:menu.item as="button" type="submit" icon="check-circle" class="w-full cursor-pointer">
+                                                                {{ __('Publish') }}
+                                                            </flux:menu.item>
+                                                        </form>
+                                                    @elseif ($beritaStatus === 'published')
+                                                        <form method="POST" action="{{ route($prefix . '.beritas.status', $berita) }}">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="status" value="archived" />
+                                                            <flux:menu.item as="button" type="submit" icon="archive-box" class="w-full cursor-pointer">
+                                                                {{ __('Archive') }}
+                                                            </flux:menu.item>
+                                                        </form>
+                                                    @endif
+                                                @else
+                                                    <flux:menu.item
+                                                        icon="pencil-square"
+                                                        href="{{ route($prefix . '.beritas.edit', $berita) }}"
+                                                        wire:navigate
+                                                    >
+                                                        {{ __('Edit') }}
+                                                    </flux:menu.item>
+                                                @endif
 
-                                            <form
-                                                method="POST"
-                                                action="{{ route('admin.beritas.destroy', $berita) }}"
-                                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus berita ini? Gambar di Cloudinary juga akan dihapus.');"
-                                            >
-                                                @csrf
-                                                @method('DELETE')
-                                                <flux:button
-                                                    size="sm"
-                                                    variant="danger"
-                                                    icon="trash"
-                                                    type="submit"
-                                                    title="{{ __('Hapus Berita') }}"
-                                                />
-                                            </form>
-                                        </div>
+                                                @if ($canDelete)
+                                                    <flux:modal.trigger name="delete-berita-modal-{{ $berita->id }}">
+                                                        <flux:menu.item icon="trash" variant="danger">
+                                                            {{ __('Hapus') }}
+                                                        </flux:menu.item>
+                                                    </flux:modal.trigger>
+                                                @endif
+                                            </flux:menu>
+                                        </flux:dropdown>
                                     </td>
                                 </tr>
                             @endforeach
@@ -197,4 +254,42 @@
             @endif
         </div>
     </div>
+
+    {{-- Modal Konfirmasi Hapus Berita --}}
+    @foreach ($beritas as $berita)
+        <flux:modal name="delete-berita-modal-{{ $berita->id }}" focusable class="max-w-md w-full">
+            <form
+                method="POST"
+                action="{{ route($prefix . '.beritas.destroy', $berita) }}"
+                x-data="{ submitting: false }"
+                @submit="submitting = true"
+                class="space-y-5"
+            >
+                @csrf
+                @method('DELETE')
+
+                <div>
+                    <flux:heading size="lg">
+                        {{ __('Hapus Berita') }}
+                    </flux:heading>
+                    <flux:subheading class="mt-1">
+                        {{ __('Apakah Anda yakin ingin menghapus berita :judul? Gambar di Cloudinary juga akan dihapus secara permanen.', ['judul' => $berita->judul]) }}
+                    </flux:subheading>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <flux:modal.close>
+                        <flux:button class="cursor-pointer" variant="filled" type="button" x-bind:disabled="submitting">{{ __('Batal') }}</flux:button>
+                    </flux:modal.close>
+
+                    <flux:button class="cursor-pointer" variant="danger" type="submit" x-bind:disabled="submitting">
+                        <span class="inline-flex items-center justify-center gap-2">
+                            <flux:icon.arrow-path x-show="submitting" x-cloak class="size-4 animate-spin" />
+                            <span>{{ __('Hapus') }}</span>
+                        </span>
+                    </flux:button>
+                </div>
+            </form>
+        </flux:modal>
+    @endforeach
 </x-layouts::app>

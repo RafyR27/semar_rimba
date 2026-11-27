@@ -5,12 +5,19 @@ use App\Models\User;
 use App\Services\CloudinaryService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Mockery\MockInterface;
 use RuntimeException;
 
 beforeEach(function () {
     $this->user = User::factory()->create([
         'email_verified_at' => now(),
+        'role' => 'admin',
+    ]);
+
+    $this->penulis = User::factory()->create([
+        'email_verified_at' => now(),
+        'role' => 'penulis',
     ]);
 });
 
@@ -23,7 +30,8 @@ function makeBerita(array $attributes = []): Berita
         'thumbnail_url' => 'https://res.cloudinary.com/demo/image/upload/sample.jpg',
         'thumbnail_public_id' => 'beritas/sample1',
         'tanggal_terbit' => '2026-11-01',
-        'is_published' => true,
+        'status' => 'review',
+        'is_published' => false,
     ], $attributes));
 }
 
@@ -33,34 +41,42 @@ function makeBerita(array $attributes = []): Berita
 
 test('guests are redirected to login when accessing berita management', function () {
     $this->get(route('admin.beritas.index'))->assertRedirect(route('login'));
-    $this->get(route('admin.beritas.create'))->assertRedirect(route('login'));
+    $this->get(route('penulis.beritas.create'))->assertRedirect(route('login'));
 });
 
-test('authenticated verified users can view the berita list', function () {
-    makeBerita();
+test('authenticated verified admin can view non-draft berita list', function () {
+    makeBerita(['status' => 'review']);
+    makeBerita([
+        'judul' => 'Berita Draft Rahasia',
+        'slug' => 'berita-draft-rahasia',
+        'status' => 'draft',
+    ]);
 
     $response = $this->actingAs($this->user)->get(route('admin.beritas.index'));
 
     $response->assertOk();
     $response->assertSee('Manajemen Berita');
     $response->assertSee('Ekspedisi Argopuro 2026');
-    $response->assertSee('ekspedisi-argopuro-2026');
+    $response->assertSee('Laporan ekspedisi pendakian Argopuro');
+    $response->assertDontSee('Berita Draft Rahasia');
 });
 
 // ---------------------------------------------------------------------------
 // Create
 // ---------------------------------------------------------------------------
 
-test('admin can view create berita page', function () {
-    $response = $this->actingAs($this->user)->get(route('admin.beritas.create'));
+test('penulis can view create berita page and admin or staff cannot', function () {
+    $response = $this->actingAs($this->penulis)->get(route('penulis.beritas.create'));
 
     $response->assertOk();
     $response->assertSee('Tambah Berita Baru');
     $response->assertSee('Judul Berita');
     $response->assertSee('Isi Berita');
+    expect(Route::has('admin.beritas.create'))->toBeFalse();
+    expect(Route::has('staff.beritas.create'))->toBeFalse();
 });
 
-test('admin can store a new berita with thumbnail upload to cloudinary', function () {
+test('penulis can store a new berita with thumbnail upload to cloudinary', function () {
     $this->mock(CloudinaryService::class, function (MockInterface $mock) {
         $mock->shouldReceive('upload')
             ->once()
@@ -72,24 +88,26 @@ test('admin can store a new berita with thumbnail upload to cloudinary', functio
 
     $file = UploadedFile::fake()->image('berita.jpg', 1600, 900);
 
-    $response = $this->actingAs($this->user)->post(route('admin.beritas.store'), [
+    $response = $this->actingAs($this->penulis)->post(route('penulis.beritas.store'), [
         'judul' => 'Ekspedisi Puncak Semeru',
         'konten' => 'Rangkaian kegiatan ekspedisi dan pendidikan dasar lapangan.',
         'thumbnail' => $file,
         'tanggal_terbit' => '2026-11-10',
-        'is_published' => '1',
+        'status' => 'draft',
     ]);
 
-    $response->assertRedirect(route('admin.beritas.index'));
+    $response->assertRedirect(route('penulis.beritas.index'));
     $response->assertSessionHas('status');
 
     $this->assertDatabaseHas('beritas', [
+        'user_id' => $this->penulis->id,
         'judul' => 'Ekspedisi Puncak Semeru',
         'slug' => 'ekspedisi-puncak-semeru',
         'thumbnail_public_id' => 'beritas/unique_id_123',
         'thumbnail_url' => 'https://res.cloudinary.com/demo/image/upload/v1/beritas/unique_id_123.jpg',
         'tanggal_terbit' => '2026-11-10 00:00:00',
-        'is_published' => 1,
+        'status' => 'draft',
+        'is_published' => 0,
     ]);
 });
 
@@ -101,16 +119,17 @@ test('slug is generated from judul when left empty', function () {
         ]);
     });
 
-    $this->actingAs($this->user)->post(route('admin.beritas.store'), [
+    $this->actingAs($this->penulis)->post(route('penulis.beritas.store'), [
         'judul' => 'Konservasi Hutan Lindung Bandung',
         'konten' => 'Kegiatan konservasi bersama warga sekitar.',
         'thumbnail' => UploadedFile::fake()->image('konservasi.jpg'),
-        'is_published' => '1',
-    ])->assertRedirect(route('admin.beritas.index'));
+        'status' => 'review',
+    ])->assertRedirect(route('penulis.beritas.index'));
 
     $this->assertDatabaseHas('beritas', [
         'judul' => 'Konservasi Hutan Lindung Bandung',
         'slug' => 'konservasi-hutan-lindung-bandung',
+        'status' => 'review',
     ]);
 });
 
@@ -124,18 +143,18 @@ test('duplicate slug is made unique automatically', function () {
         ]);
     });
 
-    $this->actingAs($this->user)->post(route('admin.beritas.store'), [
+    $this->actingAs($this->penulis)->post(route('penulis.beritas.store'), [
         'judul' => 'Ekspedisi Argopuro 2026',
         'konten' => 'Duplikat judul untuk menguji slug unik.',
         'thumbnail' => UploadedFile::fake()->image('dup.jpg'),
-        'is_published' => '0',
-    ])->assertRedirect(route('admin.beritas.index'));
+        'status' => 'draft',
+    ])->assertRedirect(route('penulis.beritas.index'));
 
     $this->assertDatabaseHas('beritas', ['slug' => 'ekspedisi-argopuro-2026-1']);
 });
 
 test('validation prevents storing berita without judul konten or thumbnail', function () {
-    $response = $this->actingAs($this->user)->post(route('admin.beritas.store'), [
+    $response = $this->actingAs($this->penulis)->post(route('penulis.beritas.store'), [
         'judul' => '',
         'konten' => '',
     ]);
@@ -145,11 +164,11 @@ test('validation prevents storing berita without judul konten or thumbnail', fun
 });
 
 test('validation rejects non image thumbnail', function () {
-    $response = $this->actingAs($this->user)->post(route('admin.beritas.store'), [
+    $response = $this->actingAs($this->penulis)->post(route('penulis.beritas.store'), [
         'judul' => 'Berita Dengan File Salah',
         'konten' => 'Isi berita.',
         'thumbnail' => UploadedFile::fake()->create('dokumen.pdf', 120, 'application/pdf'),
-        'is_published' => '1',
+        'status' => 'draft',
     ]);
 
     $response->assertSessionHasErrors(['thumbnail']);
@@ -160,45 +179,56 @@ test('validation rejects non image thumbnail', function () {
 // Edit & Update
 // ---------------------------------------------------------------------------
 
-test('admin can view edit berita page', function () {
-    $berita = makeBerita();
+test('penulis can view edit berita page for own berita', function () {
+    $berita = makeBerita([
+        'user_id' => $this->penulis->id,
+        'status' => 'draft',
+    ]);
 
-    $response = $this->actingAs($this->user)->get(route('admin.beritas.edit', $berita));
+    $response = $this->actingAs($this->penulis)->get(route('penulis.beritas.edit', $berita));
 
     $response->assertOk();
     $response->assertSee('Edit Berita');
     $response->assertSee('Ekspedisi Argopuro 2026');
 });
 
-test('admin can update berita without changing the thumbnail', function () {
-    $berita = makeBerita();
+test('penulis can update own berita without changing the thumbnail', function () {
+    $berita = makeBerita([
+        'user_id' => $this->penulis->id,
+        'status' => 'draft',
+    ]);
 
     $this->mock(CloudinaryService::class, function (MockInterface $mock) {
         $mock->shouldNotReceive('upload');
         $mock->shouldNotReceive('destroy');
     });
 
-    $response = $this->actingAs($this->user)->put(route('admin.beritas.update', $berita), [
+    $response = $this->actingAs($this->penulis)->put(route('penulis.beritas.update', $berita), [
         'judul' => 'Ekspedisi Argopuro 2026 Diperbarui',
         'slug' => 'ekspedisi-argopuro-2026',
         'konten' => 'Isi berita yang sudah diperbarui.',
         'tanggal_terbit' => '2026-11-05',
-        'is_published' => '0',
+        'status' => 'review',
     ]);
 
-    $response->assertRedirect(route('admin.beritas.index'));
+    $response->assertRedirect(route('penulis.beritas.index'));
 
     $this->assertDatabaseHas('beritas', [
         'id' => $berita->id,
         'judul' => 'Ekspedisi Argopuro 2026 Diperbarui',
         'konten' => 'Isi berita yang sudah diperbarui.',
         'thumbnail_public_id' => 'beritas/sample1',
+        'status' => 'review',
         'is_published' => 0,
     ]);
 });
 
-test('admin can replace berita thumbnail and old cloudinary asset is destroyed', function () {
-    $berita = makeBerita(['thumbnail_public_id' => 'beritas/old_asset_to_delete']);
+test('penulis can replace berita thumbnail and old cloudinary asset is destroyed', function () {
+    $berita = makeBerita([
+        'user_id' => $this->penulis->id,
+        'thumbnail_public_id' => 'beritas/old_asset_to_delete',
+        'status' => 'draft',
+    ]);
 
     $this->mock(CloudinaryService::class, function (MockInterface $mock) {
         $mock->shouldReceive('destroy')
@@ -214,16 +244,16 @@ test('admin can replace berita thumbnail and old cloudinary asset is destroyed',
             ]);
     });
 
-    $response = $this->actingAs($this->user)->put(route('admin.beritas.update', $berita), [
+    $response = $this->actingAs($this->penulis)->put(route('penulis.beritas.update', $berita), [
         'judul' => 'Ekspedisi Argopuro 2026',
         'slug' => 'ekspedisi-argopuro-2026',
         'konten' => 'Isi berita dengan gambar baru.',
         'thumbnail' => UploadedFile::fake()->image('baru.webp', 1600, 900),
         'tanggal_terbit' => '2026-11-01',
-        'is_published' => '1',
+        'status' => 'review',
     ]);
 
-    $response->assertRedirect(route('admin.beritas.index'));
+    $response->assertRedirect(route('penulis.beritas.index'));
 
     $this->assertDatabaseHas('beritas', [
         'id' => $berita->id,
@@ -233,11 +263,14 @@ test('admin can replace berita thumbnail and old cloudinary asset is destroyed',
 });
 
 // ---------------------------------------------------------------------------
-// Delete & Publish Toggle
+// Delete & Status Workflow
 // ---------------------------------------------------------------------------
 
-test('admin can delete berita and its cloudinary asset is destroyed', function () {
-    $berita = makeBerita(['thumbnail_public_id' => 'beritas/asset_to_destroy']);
+test('admin can delete review or archived berita and its cloudinary asset is destroyed', function () {
+    $berita = makeBerita([
+        'thumbnail_public_id' => 'beritas/asset_to_destroy',
+        'status' => 'archived',
+    ]);
 
     $this->mock(CloudinaryService::class, function (MockInterface $mock) {
         $mock->shouldReceive('destroy')
@@ -252,20 +285,81 @@ test('admin can delete berita and its cloudinary asset is destroyed', function (
     $this->assertDatabaseMissing('beritas', ['id' => $berita->id]);
 });
 
-test('admin can toggle publication status of berita', function () {
-    $berita = makeBerita(['is_published' => true]);
+test('admin and staff can publish review berita and archive published berita', function () {
+    $staff = User::factory()->create([
+        'email_verified_at' => now(),
+        'role' => 'staff',
+    ]);
 
-    $this->actingAs($this->user)
-        ->patch(route('admin.beritas.toggle', $berita))
+    $berita = makeBerita(['status' => 'review', 'is_published' => false]);
+
+    $this->actingAs($staff)
+        ->patch(route('staff.beritas.status', $berita), ['status' => 'published'])
         ->assertRedirect();
 
-    $this->assertDatabaseHas('beritas', ['id' => $berita->id, 'is_published' => 0]);
+    $this->assertDatabaseHas('beritas', [
+        'id' => $berita->id,
+        'status' => 'published',
+        'is_published' => 1,
+    ]);
 
     $this->actingAs($this->user)
-        ->patch(route('admin.beritas.toggle', $berita))
+        ->patch(route('admin.beritas.status', $berita), ['status' => 'archived'])
         ->assertRedirect();
 
-    $this->assertDatabaseHas('beritas', ['id' => $berita->id, 'is_published' => 1]);
+    $this->assertDatabaseHas('beritas', [
+        'id' => $berita->id,
+        'status' => 'archived',
+        'is_published' => 0,
+    ]);
+});
+
+test('penulis only sees own berita and can only delete draft', function () {
+    $otherPenulis = User::factory()->create([
+        'email_verified_at' => now(),
+        'role' => 'penulis',
+    ]);
+
+    $ownDraft = makeBerita([
+        'user_id' => $this->penulis->id,
+        'judul' => 'Draft Penulis Ini',
+        'slug' => 'draft-penulis-ini',
+        'status' => 'draft',
+    ]);
+
+    $ownReview = makeBerita([
+        'user_id' => $this->penulis->id,
+        'judul' => 'Review Penulis Ini',
+        'slug' => 'review-penulis-ini',
+        'status' => 'review',
+    ]);
+
+    makeBerita([
+        'user_id' => $otherPenulis->id,
+        'judul' => 'Berita Penulis Lain',
+        'slug' => 'berita-penulis-lain',
+        'status' => 'draft',
+    ]);
+
+    $this->actingAs($this->penulis)
+        ->get(route('penulis.beritas.index'))
+        ->assertOk()
+        ->assertSee('Draft Penulis Ini')
+        ->assertDontSee('Berita Penulis Lain');
+
+    $this->actingAs($this->penulis)
+        ->delete(route('penulis.beritas.destroy', $ownReview))
+        ->assertSessionHas('error');
+    $this->assertDatabaseHas('beritas', ['id' => $ownReview->id]);
+
+    $this->mock(CloudinaryService::class, function (MockInterface $mock) use ($ownDraft) {
+        $mock->shouldReceive('destroy')->once()->with($ownDraft->thumbnail_public_id)->andReturn(true);
+    });
+
+    $this->actingAs($this->penulis)
+        ->delete(route('penulis.beritas.destroy', $ownDraft))
+        ->assertRedirect(route('penulis.beritas.index'));
+    $this->assertDatabaseMissing('beritas', ['id' => $ownDraft->id]);
 });
 
 // ---------------------------------------------------------------------------
@@ -273,11 +367,12 @@ test('admin can toggle publication status of berita', function () {
 // ---------------------------------------------------------------------------
 
 test('admin list supports search and status filter', function () {
-    makeBerita(['judul' => 'Ekspedisi Argopuro 2026', 'slug' => 'argopuro']);
+    makeBerita(['judul' => 'Ekspedisi Argopuro 2026', 'slug' => 'argopuro', 'status' => 'published', 'is_published' => true]);
     makeBerita([
         'judul' => 'Konservasi Mangrove',
         'slug' => 'konservasi-mangrove',
         'konten' => 'Cerita penanaman mangrove di pesisir Bandung.',
+        'status' => 'review',
         'is_published' => false,
     ]);
 
@@ -288,7 +383,7 @@ test('admin list supports search and status filter', function () {
         ->assertDontSee('Konservasi Mangrove');
 
     $this->actingAs($this->user)
-        ->get(route('admin.beritas.index', ['status' => 'draft']))
+        ->get(route('admin.beritas.index', ['status' => 'review']))
         ->assertOk()
         ->assertSee('Konservasi Mangrove')
         ->assertDontSee('Ekspedisi Argopuro 2026');
@@ -299,8 +394,8 @@ test('admin list supports search and status filter', function () {
 // ---------------------------------------------------------------------------
 
 test('public berita page only lists published news', function () {
-    makeBerita(['judul' => 'Berita Terbit', 'slug' => 'berita-terbit', 'is_published' => true]);
-    makeBerita(['judul' => 'Berita Draf', 'slug' => 'berita-draf', 'is_published' => false]);
+    makeBerita(['judul' => 'Berita Terbit', 'slug' => 'berita-terbit', 'status' => 'published', 'is_published' => true]);
+    makeBerita(['judul' => 'Berita Draf', 'slug' => 'berita-draf', 'status' => 'draft', 'is_published' => false]);
 
     $response = $this->get(route('berita.index'));
 
@@ -314,12 +409,14 @@ test('public can read published berita detail', function () {
         'judul' => 'Ekspedisi Argopuro 2026',
         'slug' => 'ekspedisi-argopuro-2026',
         'konten' => 'Detail laporan ekspedisi Argopuro.',
+        'status' => 'published',
         'is_published' => true,
     ]);
     makeBerita([
         'judul' => 'Bakti Konservasi Lereng Semeru',
         'slug' => 'bakti-konservasi-lereng-semeru',
         'konten' => 'Aksi penanaman bibit di lereng Semeru.',
+        'status' => 'published',
         'is_published' => true,
     ]);
 
@@ -336,14 +433,60 @@ test('public cannot access draft berita detail', function () {
     makeBerita([
         'judul' => 'Berita Draf Rahasia',
         'slug' => 'berita-draf-rahasia',
+        'status' => 'draft',
         'is_published' => false,
     ]);
 
     $this->get(route('berita.show', 'berita-draf-rahasia'))->assertNotFound();
 });
 
+test('admin and staff can preview review and archived berita while guests cannot', function () {
+    $staff = User::factory()->create([
+        'email_verified_at' => now(),
+        'role' => 'staff',
+    ]);
+
+    makeBerita([
+        'user_id' => $this->penulis->id,
+        'judul' => 'Berita Review Preview',
+        'slug' => 'berita-review-preview',
+        'status' => 'review',
+        'is_published' => false,
+    ]);
+
+    makeBerita([
+        'user_id' => $this->penulis->id,
+        'judul' => 'Berita Archived Preview',
+        'slug' => 'berita-archived-preview',
+        'status' => 'archived',
+        'is_published' => false,
+    ]);
+
+    makeBerita([
+        'user_id' => $this->penulis->id,
+        'judul' => 'Berita Draft Penulis',
+        'slug' => 'berita-draft-penulis',
+        'status' => 'draft',
+        'is_published' => false,
+    ]);
+
+    // Guests get 404 for review & archived
+    $this->get(route('berita.show', 'berita-review-preview'))->assertNotFound();
+    $this->get(route('berita.show', 'berita-archived-preview'))->assertNotFound();
+
+    // Admin & staff can preview review & archived, but not draft
+    $this->actingAs($this->user)->get(route('berita.show', 'berita-review-preview'))->assertOk()->assertSee('Berita Review Preview');
+    $this->actingAs($staff)->get(route('berita.show', 'berita-archived-preview'))->assertOk()->assertSee('Berita Archived Preview');
+    $this->actingAs($this->user)->get(route('berita.show', 'berita-draft-penulis'))->assertNotFound();
+
+    // Penulis owner can preview draft, review, and archived
+    $this->actingAs($this->penulis)->get(route('berita.show', 'berita-draft-penulis'))->assertOk()->assertSee('Berita Draft Penulis');
+    $this->actingAs($this->penulis)->get(route('berita.show', 'berita-review-preview'))->assertOk();
+    $this->actingAs($this->penulis)->get(route('berita.show', 'berita-archived-preview'))->assertOk();
+});
+
 test('public berita page shows empty state when nothing published', function () {
-    makeBerita(['is_published' => false]);
+    makeBerita(['status' => 'draft', 'is_published' => false]);
 
     $this->get(route('berita.index'))
         ->assertOk()
@@ -370,13 +513,13 @@ test('newly uploaded thumbnail is discarded when storing berita fails in databas
         }
     });
 
-    $this->actingAs($this->user)->post(route('admin.beritas.store'), [
+    $this->actingAs($this->penulis)->post(route('penulis.beritas.store'), [
         'judul' => 'Berita Yang Gagal Disimpan',
         'slug' => 'berita-yang-gagal-disimpan',
         'konten' => 'Konten contoh.',
         'thumbnail' => UploadedFile::fake()->image('gagal.jpg', 1600, 900),
         'tanggal_terbit' => '2026-11-10',
-        'is_published' => '1',
+        'status' => 'draft',
     ])->assertSessionHas('error');
 
     $fail = false;
@@ -385,7 +528,11 @@ test('newly uploaded thumbnail is discarded when storing berita fails in databas
 });
 
 test('previous thumbnail is preserved and new upload is discarded when updating berita fails', function () {
-    $berita = makeBerita(['thumbnail_public_id' => 'beritas/old_keep']);
+    $berita = makeBerita([
+        'user_id' => $this->penulis->id,
+        'thumbnail_public_id' => 'beritas/old_keep',
+        'status' => 'draft',
+    ]);
 
     $this->mock(CloudinaryService::class, function (MockInterface $mock) {
         $mock->shouldReceive('upload')->once()->andReturn([
@@ -403,13 +550,13 @@ test('previous thumbnail is preserved and new upload is discarded when updating 
         }
     });
 
-    $this->actingAs($this->user)->put(route('admin.beritas.update', $berita), [
+    $this->actingAs($this->penulis)->put(route('penulis.beritas.update', $berita), [
         'judul' => 'Ekspedisi Argopuro 2026 Diperbarui',
         'slug' => 'ekspedisi-argopuro-2026',
         'konten' => 'Isi berita yang sudah diperbarui.',
         'thumbnail' => UploadedFile::fake()->image('baru.jpg'),
         'tanggal_terbit' => '2026-11-05',
-        'is_published' => '0',
+        'status' => 'review',
     ])->assertSessionHas('error');
 
     $fail = false;
@@ -420,7 +567,7 @@ test('previous thumbnail is preserved and new upload is discarded when updating 
 });
 
 test('berita record and its existing thumbnail stay intact when database delete fails', function () {
-    $berita = makeBerita(['thumbnail_public_id' => 'beritas/keep_asset']);
+    $berita = makeBerita(['thumbnail_public_id' => 'beritas/keep_asset', 'status' => 'review']);
 
     $this->mock(CloudinaryService::class, function (MockInterface $mock) {
         $mock->shouldNotReceive('destroy');
@@ -444,7 +591,7 @@ test('berita record and its existing thumbnail stay intact when database delete 
 });
 
 test('berita is still deleted when Cloudinary asset removal fails and the failure is logged', function () {
-    $berita = makeBerita(['thumbnail_public_id' => 'beritas/asset_with_broken_destroy']);
+    $berita = makeBerita(['thumbnail_public_id' => 'beritas/asset_with_broken_destroy', 'status' => 'archived']);
 
     $this->mock(CloudinaryService::class, function (MockInterface $mock) {
         $mock->shouldReceive('destroy')->once()->with('beritas/asset_with_broken_destroy')->andReturn(false);
@@ -462,7 +609,11 @@ test('berita is still deleted when Cloudinary asset removal fails and the failur
 });
 
 test('berita update succeeds and logs a warning when the previous Cloudinary asset cannot be removed', function () {
-    $berita = makeBerita(['thumbnail_public_id' => 'beritas/old_unremovable']);
+    $berita = makeBerita([
+        'user_id' => $this->penulis->id,
+        'thumbnail_public_id' => 'beritas/old_unremovable',
+        'status' => 'draft',
+    ]);
 
     $this->mock(CloudinaryService::class, function (MockInterface $mock) {
         $mock->shouldReceive('upload')->once()->andReturn([
@@ -474,13 +625,13 @@ test('berita update succeeds and logs a warning when the previous Cloudinary ass
 
     Log::spy();
 
-    $this->actingAs($this->user)->put(route('admin.beritas.update', $berita), [
+    $this->actingAs($this->penulis)->put(route('penulis.beritas.update', $berita), [
         'judul' => 'Ekspedisi Argopuro 2026 Diperbarui',
         'slug' => 'ekspedisi-argopuro-2026',
         'konten' => 'Isi berita dengan thumbnail baru.',
         'thumbnail' => UploadedFile::fake()->image('baru.jpg'),
         'tanggal_terbit' => '2026-11-01',
-        'is_published' => '1',
+        'status' => 'review',
     ])->assertSessionHas('status');
 
     $this->assertDatabaseHas('beritas', [
@@ -496,13 +647,13 @@ test('berita update succeeds and logs a warning when the previous Cloudinary ass
 // Authorization
 // ---------------------------------------------------------------------------
 
-test('guests cannot create, update, delete, or toggle publication of berita through admin routes', function () {
+test('guests cannot create, update, delete, or change status of berita', function () {
     $berita = makeBerita();
 
-    $this->post(route('admin.beritas.store'))->assertRedirect(route('login'));
-    $this->put(route('admin.beritas.update', $berita))->assertRedirect(route('login'));
+    $this->post(route('penulis.beritas.store'))->assertRedirect(route('login'));
+    $this->put(route('penulis.beritas.update', $berita))->assertRedirect(route('login'));
     $this->delete(route('admin.beritas.destroy', $berita))->assertRedirect(route('login'));
-    $this->patch(route('admin.beritas.toggle', $berita))->assertRedirect(route('login'));
+    $this->patch(route('admin.beritas.status', $berita))->assertRedirect(route('login'));
 
     $this->assertDatabaseHas('beritas', ['id' => $berita->id, 'judul' => $berita->judul]);
 });
@@ -516,6 +667,7 @@ test('published berita with a future tanggal_terbit is visible immediately (no s
         'judul' => 'Ekspedisi Masa Depan',
         'slug' => 'ekspedisi-masa-depan',
         'tanggal_terbit' => now()->addMonth()->toDateString(),
+        'status' => 'published',
         'is_published' => true,
     ]);
 

@@ -2,6 +2,80 @@ import Swiper from "swiper";
 import { Autoplay, EffectFade, Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/effect-fade";
+import { Editor } from "@tiptap/core";
+import StarterKit from "@tiptap/starter-kit";
+
+window.createTiptapAlpineData = function (initialContent = "") {
+    let editor = null;
+
+    return {
+        content: initialContent,
+        tick: 0,
+
+        init() {
+            editor = new Editor({
+                element: this.$refs.editor,
+                extensions: [StarterKit],
+                content: this.content || "",
+                editorProps: {
+                    attributes: {
+                        class: "tiptap-prose min-h-[180px] px-3.5 py-3 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none",
+                    },
+                },
+                onUpdate: ({ editor: instance }) => {
+                    this.content = instance.isEmpty ? "" : instance.getHTML();
+                    this.tick++;
+                },
+                onSelectionUpdate: () => {
+                    this.tick++;
+                },
+                onTransaction: () => {
+                    this.tick++;
+                },
+            });
+        },
+
+        destroy() {
+            if (editor) {
+                editor.destroy();
+                editor = null;
+            }
+        },
+
+        isActive(name, attrs = {}) {
+            void this.tick;
+            return editor ? editor.isActive(name, attrs) : false;
+        },
+
+        toggleBold() {
+            editor?.chain().focus().toggleBold().run();
+        },
+        toggleItalic() {
+            editor?.chain().focus().toggleItalic().run();
+        },
+        toggleStrike() {
+            editor?.chain().focus().toggleStrike().run();
+        },
+        toggleHeading(level) {
+            editor?.chain().focus().toggleHeading({ level }).run();
+        },
+        toggleBulletList() {
+            editor?.chain().focus().toggleBulletList().run();
+        },
+        toggleOrderedList() {
+            editor?.chain().focus().toggleOrderedList().run();
+        },
+        toggleBlockquote() {
+            editor?.chain().focus().toggleBlockquote().run();
+        },
+        undo() {
+            editor?.chain().focus().undo().run();
+        },
+        redo() {
+            editor?.chain().focus().redo().run();
+        },
+    };
+};
 
 function initHeroSwiper() {
     const heroSwiperEl = document.querySelector(".hero-swiper");
