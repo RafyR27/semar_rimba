@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KegiatanController;
+use App\Http\Controllers\ReportController;
 use App\Models\HeroBanner;
 use Illuminate\Support\Facades\Route;
 
@@ -88,6 +89,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('pengurus', PengurusController::class)
             ->parameters(['pengurus' => 'pengurus'])
             ->except(['show']);
+
+        Route::get('laporan', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('laporan/export', [ReportController::class, 'export'])->name('reports.export');
     });
 
     Route::prefix('staff')->name('staff.')->middleware('role:staff')->group(function () {
@@ -135,6 +139,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('pengurus', PengurusController::class)
             ->parameters(['pengurus' => 'pengurus'])
             ->except(['show']);
+
+        Route::get('laporan', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('laporan/export', [ReportController::class, 'export'])->name('reports.export');
     });
 
     Route::prefix('penulis')->name('penulis.')->middleware('role:penulis')->group(function () {
@@ -151,6 +158,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('beritas', AdminBeritaController::class)
             ->parameters(['beritas' => 'berita'])
             ->except(['show']);
+
+        Route::get('laporan', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('laporan/export', [ReportController::class, 'export'])->name('reports.export');
     });
 });
 

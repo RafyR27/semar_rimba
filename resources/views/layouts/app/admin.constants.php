@@ -49,4 +49,10 @@ return [
         'current' => 'admin.pengurus.*',
         'title' => 'Pengurus',
     ],
+    [
+        'icon' => 'chart-bar',
+        'route' => 'admin.reports.index',
+        'current' => 'admin.reports.*',
+        'title' => 'Laporan',
+    ],
 ];
