@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\OrganizationProfileController;
 use App\Http\Controllers\Admin\PengurusController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\BeritaController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KegiatanController;
 use App\Models\HeroBanner;
 use Illuminate\Support\Facades\Route;
@@ -38,7 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
-        Route::view('dashboard', 'dashboard')->name('dashboard');
+        Route::get('dashboard', [DashboardController::class, 'admin'])->name('dashboard');
         Route::get('users-management', [UserManagementController::class, 'index'])
             ->name('users-management.index');
         Route::post('users-management', [UserManagementController::class, 'add'])
@@ -90,7 +91,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('staff')->name('staff.')->middleware('role:staff')->group(function () {
-        Route::view('dashboard', 'dashboard')->name('dashboard');
+        Route::get('dashboard', [DashboardController::class, 'staff'])->name('dashboard');
 
         Route::patch('hero-banners/{heroBanner}/toggle', [HeroBannerController::class, 'toggleActive'])
             ->name('hero-banners.toggle');
@@ -137,7 +138,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('penulis')->name('penulis.')->middleware('role:penulis')->group(function () {
-        Route::view('dashboard', 'dashboard')->name('dashboard');
+        Route::get('dashboard', [DashboardController::class, 'penulis'])->name('dashboard');
 
         Route::patch('activities/{activity}/status', [ActivityController::class, 'updateStatus'])
             ->name('activities.status');

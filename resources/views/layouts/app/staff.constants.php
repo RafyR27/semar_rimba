@@ -4,7 +4,7 @@ return [
     [
         'icon' => 'home',
         'route' => 'dashboard',
-        'current' => 'dashboard',
+        'current' => ['dashboard', 'staff.dashboard'],
         'title' => 'Dashboard',
     ],
     [
