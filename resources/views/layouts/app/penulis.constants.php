@@ -16,4 +16,9 @@ return [
         'url' => '/penulis/activities',
         'title' => 'Kegiatan',
     ],
+    [
+        'icon' => 'chart-bar',
+        'url' => '/penulis/laporan',
+        'title' => 'Laporan',
+    ],
 ];

@@ -235,6 +235,15 @@
                                                     {{ $activityStatus === 'published' ? __('Lihat') : __('Preview') }}
                                                 </flux:menu.item>
 
+                                                @if ($activity->hasDocument())
+                                                    <flux:menu.item
+                                                        icon="arrow-down-tray"
+                                                        href="{{ route($prefix . '.activities.document', $activity) }}"
+                                                    >
+                                                        {{ __('Unduh Dokumen') }}
+                                                    </flux:menu.item>
+                                                @endif
+
                                                 @if ($isReviewer)
                                                     @if ($activityStatus === 'review')
                                                         <form method="POST" action="{{ route($prefix . '.activities.status', $activity) }}">

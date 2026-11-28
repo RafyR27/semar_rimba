@@ -4,7 +4,7 @@ return [
     [
         'icon' => 'home',
         'route' => 'dashboard',
-        'current' => 'dashboard',
+        'current' => ['dashboard', 'staff.dashboard'],
         'title' => 'Dashboard',
     ],
     [
@@ -42,5 +42,11 @@ return [
         'route' => 'staff.pengurus.index',
         'current' => 'staff.pengurus.*',
         'title' => 'Pengurus',
+    ],
+    [
+        'icon' => 'chart-bar',
+        'route' => 'staff.reports.index',
+        'current' => 'staff.reports.*',
+        'title' => 'Laporan',
     ],
 ];

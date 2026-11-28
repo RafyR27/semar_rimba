@@ -163,6 +163,54 @@
                     </template>
                 </div>
 
+                {{-- Dokumen Pendukung (Private Laravel Storage) --}}
+                <div class="space-y-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+                    <label for="document" class="block text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                        {{ __('Dokumen Pendukung (Opsional)') }}
+                    </label>
+
+                    @if ($activity->hasDocument())
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60">
+                            <div class="min-w-0">
+                                <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+                                    {{ $activity->document_original_name ?? basename($activity->document_path) }}
+                                </p>
+                                <p class="text-xs text-zinc-500 dark:text-zinc-400">
+                                    {{ $activity->formattedDocumentSize() ?? __('Ukuran tidak diketahui') }} · {{ __('Tersimpan privat') }}
+                                </p>
+                            </div>
+
+                            <div class="flex items-center gap-3 shrink-0">
+                                <a
+                                    href="{{ route($prefix . '.activities.document', $activity) }}"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-400 hover:bg-amber-500/25 transition"
+                                >
+                                    <flux:icon.arrow-down-tray class="size-3.5" />
+                                    <span>{{ __('Unduh') }}</span>
+                                </a>
+
+                                <label class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-600 dark:text-rose-400 cursor-pointer">
+                                    <input type="checkbox" name="remove_document" value="1" class="rounded border-zinc-300 dark:border-zinc-700 text-rose-600 focus:ring-rose-500" />
+                                    <span>{{ __('Hapus dokumen') }}</span>
+                                </label>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div>
+                        <input
+                            type="file"
+                            name="document"
+                            id="document"
+                            accept=".pdf,.doc,.docx,image/jpeg,image/png"
+                            class="block w-full text-sm text-zinc-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-200 dark:file:bg-zinc-700 file:text-zinc-800 dark:file:text-zinc-100 hover:file:bg-zinc-300 dark:hover:file:bg-zinc-600 file:cursor-pointer cursor-pointer border border-zinc-300 dark:border-zinc-700 rounded-lg p-2 dark:bg-zinc-800"
+                        />
+                        <p class="text-xs text-zinc-500 mt-1">
+                            {{ __('Unggah dokumen baru (PDF, DOC, DOCX, JPG, PNG · Maks. 5MB) untuk mengganti dokumen lama secara otomatis.') }}
+                        </p>
+                    </div>
+                </div>
+
                 {{-- Status & Order Setting --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
                     <div class="space-y-2">

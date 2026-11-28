@@ -4,7 +4,7 @@ return [
     [
         'icon' => 'home',
         'route' => 'dashboard',
-        'current' => 'dashboard',
+        'current' => ['dashboard', 'admin.dashboard'],
         'title' => 'Dashboard',
     ],
     [
@@ -48,5 +48,11 @@ return [
         'route' => 'admin.pengurus.index',
         'current' => 'admin.pengurus.*',
         'title' => 'Pengurus',
+    ],
+    [
+        'icon' => 'chart-bar',
+        'route' => 'admin.reports.index',
+        'current' => 'admin.reports.*',
+        'title' => 'Laporan',
     ],
 ];
